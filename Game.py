@@ -26,27 +26,35 @@ class GameMain():
     def MainLoop(self):
         self.LoadSprites()
         self.level = 1
+
+        #Background music from the following music
+        #http://audionautix.com/?utm_campaign=elearningindustry.com&utm_source=%2Fultimate-list-free-music-elearning-online-education&utm_medium=link
+        pygame.mixer.music.load('BigCarTheft.mp3')
+        pygame.mixer.music.play(-1)
+
         running = True
         while(running):
             self.scale = 40000/self.x_view
             self.x_view += 0.25
             self.y_view += 3/16
             button = False
-            clock.tick(120)
+            clock.tick(80)
             pygame.display.update()
             self.screen.fill((160, 82, 45))
             event = pygame.event.poll()
             if event.type == pygame.QUIT:
                 running = False
-            elif event.type == pygame.KEYDOWN:
-                pressed = pygame.key.get_pressed()
-                if pressed[pygame.K_0]:
-                    button = True
             for factory in self.factories:
                 self.render(self.screen, assemblerimg, assemblerpng, bearimg, factory)
+<<<<<<< HEAD
                 factory.step(button,self.screen)
             '''if self.factories[0].score >= 10:
                 self.changeLevel()'''
+=======
+                factory.step(pygame.key.get_pressed()[factory.button],self.screen)
+            if self.factories[0].score >= 10:
+                self.changeLevel()
+>>>>>>> 4715e872696eb71da51f5940ff4efe37b1e5a051
 
 
     def render(self,screen,assemberimg,assemblerpng,bearimg, factory):
@@ -81,7 +89,7 @@ class GameMain():
             #self.scale *= 2.0/3
             del self.factories[:]
             self.factories.append(Producer('teddybear', 2, 2.25, [0,2,2,0]))#left
-            self.factories.append(Producer('teddybear', 4, 2.25, [0,0,2,0]))#right
+            self.factories.append(Producer('teddybear', 4, 2.25, [0,0,2,0], pygame.K_1, 0, 200))#right
         elif self.level == 3:
             #self.scale *= 3.0/4
             del self.factories[:]
