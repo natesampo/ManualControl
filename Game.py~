@@ -37,7 +37,7 @@ class GameMain():
                 running = False
             for factory in self.factories:
                 self.render(self.screen, assemblerimg, assemblerpng, bearimg, factory)
-                factory.step(pygame.key.get_pressed()[factory.button],self.screen)
+                factory.step( in pygame.key.get_pressed()[factory.button],self.screen)
             if self.factories[0].score >= 10:
                 self.changeLevel()
 
