@@ -26,16 +26,10 @@ class GameMain():
         self.LoadSprites()
         self.scale = pygame.display.get_surface().get_size()[0]/4 # screen is 4 x 3 units initially
         self.level = 1
-
-        #Background music from the following music
-        #http://audionautix.com/?utm_campaign=elearningindustry.com&utm_source=%2Fultimate-list-free-music-elearning-online-education&utm_medium=link
-        pygame.mixer.music.load('BigCarTheft.mp3')
-        pygame.mixer.music.play(-1)
-
         running = True
         while(running):
             button = False
-            clock.tick(80)
+            clock.tick(120)
             pygame.display.update()
             self.screen.fill((160, 82, 45))
             event = pygame.event.poll()
@@ -43,7 +37,7 @@ class GameMain():
                 running = False
             for factory in self.factories:
                 self.render(self.screen, assemblerimg, assemblerpng, bearimg, factory)
-                factory.step(pygame.key.get_pressed()[factory.button],self.screen)
+                factory.step( in pygame.key.get_pressed()[factory.button],self.screen)
             if self.factories[0].score >= 10:
                 self.changeLevel()
 
