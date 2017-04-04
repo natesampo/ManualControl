@@ -78,8 +78,8 @@ class GameMain():
 
 
     def addFactory(self, last_x = 0, last_y = 0):
-        x = round((random.random()-.5)*2*WINDOW_WIDTH/self.scale + last_x)
-        y = round((random.random()-.5)*2*WINDOW_HEIGHT/self.scale + last_y)
+        x = round((random.random()-.5)*8 + last_x)
+        y = round((random.random()-.5)*8 + last_y)
         if (x, y) in self.filledSpaces:
             return self.addFactory(last_x, last_y)
         else:
@@ -92,7 +92,7 @@ class GameMain():
     def getType(self):
         if self.x_view == 200: # First factory
             return 'teddybear'
-        i = int(random.random()*x_view/100)
+        i = int(random.random()*self.x_view/100)
         if i == 0:
             return 'teddybear' # placeholder
         elif i == 1:
@@ -105,5 +105,6 @@ class GameMain():
         return abs(x)<=WINDOW_WIDTH/self.scale and abs(y)<=WINDOW_HEIGHT/self.scale
 
 if __name__ == '__main__':
+    sys.setrecursionlimit(1500)
     MainWindow = GameMain()
     MainWindow.MainLoop()
