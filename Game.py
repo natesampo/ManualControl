@@ -3,6 +3,7 @@ from PIL import Image
 import os, sys
 from Producer import Producer
 from Game_Constants import *
+import random
 clock = pygame.time.Clock()
 im = Image.open('TeddyBear.jpg')
 im.thumbnail((64, 64), Image.ANTIALIAS)
@@ -24,9 +25,10 @@ class GameMain():
 
 
     def MainLoop(self):
-        self.LoadSprites()
-        self.level = 1
-
+        self.factories = []
+        self.scale = 40000/self.x_view
+        self.filledSpaces = [] # add coordinate tuples whenever a space if filled e.g. (x, y)
+        self.addFactory()
         #Background music from the following music
         #http://audionautix.com/?utm_campaign=elearningindustry.com&utm_source=%2Fultimate-list-free-music-elearning-online-education&utm_medium=link
         pygame.mixer.music.load('BigCarTheft.mp3')
@@ -37,7 +39,6 @@ class GameMain():
             self.scale = 40000/self.x_view
             self.x_view += 0.25
             self.y_view += 3/16
-            button = False
             clock.tick(80)
             pygame.display.update()
             self.screen.fill((160, 82, 45))
@@ -54,14 +55,14 @@ class GameMain():
     def render(self,screen,assemberimg,assemblerpng,bearimg, factory):
         # Render inputs to factory
         progress = 1.0*factory.progress/factory.production
-        if factory.inputs[0]: # up
+        '''if factory.inputs[0]: # up
             pygame.draw.rect(screen, (255, 255, 255), (WINDOW_WIDTH/2 + self.scale*(factory.x-.125), WINDOW_HEIGHT/2 + self.scale*(factory.y-(factory.inputs[0])*(1-progress)-.125), self.scale/4, self.scale/4), 0)
         if factory.inputs[1]: # right
             pygame.draw.rect(screen, (255, 255, 255), (WINDOW_WIDTH/2 + self.scale*(factory.x+(factory.inputs[1])*(1-progress)-.125), WINDOW_HEIGHT/2 + self.scale*(factory.y-.125), self.scale/4, self.scale/4), 0)
         if factory.inputs[2]: # down
             pygame.draw.rect(screen, (255, 255, 255), (WINDOW_WIDTH/2 + self.scale*(factory.x-.125), WINDOW_HEIGHT/2 + self.scale*(factory.y+(factory.inputs[2])*(1-progress)-.125), self.scale/4, self.scale/4), 0)
         if factory.inputs[3]: # left
-            pygame.draw.rect(screen, (255, 255, 255), (WINDOW_WIDTH/2 + self.scale*(factory.x-(factory.inputs[3])*(1-progress)-.125), WINDOW_HEIGHT/2 + self.scale*(factory.y-.125), self.scale/4, self.scale/4), 0)
+            pygame.draw.rect(screen, (255, 255, 255), (WINDOW_WIDTH/2 + self.scale*(factory.x-(factory.inputs[3])*(1-progress)-.125), WINDOW_HEIGHT/2 + self.scale*(factory.y-.125), self.scale/4, self.scale/4), 0)'''
         # Render factory
         img = pygame.transform.scale(assemblerimg, (int(self.scale), int(self.scale)))
         screen.blit(img, (WINDOW_WIDTH/2 + self.scale*(factory.x-.5), WINDOW_HEIGHT/2 +self.scale*(factory.y-.5)))
@@ -112,12 +113,34 @@ class GameMain():
             self.factories.append(Producer('teddybear', 6, 1, [0,0,0,0]))
 
 
-    def LoadSprites(self):
-        self.factories = []
-        producer = Producer('teddybear', 0, 0, [0,2,0,0])
+    def addFactory(self):
+        x = (random.random()-.5)*2*WINDOW_WIDTH/self.scale
+        y = (random.random()-.5)*2*WINDOW_HEIGHT/self.scale
+        if (x, y) in self.filledSpaces:
+            return addFactory()
+        self.filledSpaces.append((x,y))
+        inputs = []
+	if self.onScreen(x,y):
+            inputs = [self.addFactory()]
+        producer = Producer(self.getType(), x, y, inputs)
         self.factories.append(producer)
+        return producer
 
 
+    def getType(self):
+        if self.x_view == 200: # First factory
+            return 'teddybear'
+        i = int(random.random()*x_view/100)
+        if i == 0:
+            return 'teddybear' # placeholder
+        elif i == 1:
+            return 'teddybear' # placeholder
+        else:
+            return 'teddybear' # placeholder
+
+
+    def onScreen(self, x, y):
+        return x+.5<=WINDOW_WIDTH/self.scale and .5<=x and y+.5<=WINDOW_HEIGHT/self.scale and .5<=y
 
 if __name__ == '__main__':
     MainWindow = GameMain()
