@@ -39,8 +39,8 @@ class GameMain():
         running = True
         while(running):
             self.scale = 40000/self.x_view
-            self.x_view += 2
-            self.y_view += 3/2
+            self.x_view += 0.5
+            self.y_view += 3/8
             button = False
             clock.tick(80)
             pygame.display.update()
