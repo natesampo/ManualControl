@@ -2,6 +2,7 @@ import pygame
 from PIL import Image
 import os, sys
 from Producer import Producer
+
 clock = pygame.time.Clock()
 im = Image.open('TeddyBear.jpg')
 im.thumbnail((64, 64), Image.ANTIALIAS)
@@ -35,7 +36,7 @@ class GameMain():
         running = True
         while(running):
             button = False
-            clock.tick(80)
+            clock.tick(160)
             pygame.display.update()
             self.screen.fill((160, 82, 45))
             event = pygame.event.poll()
