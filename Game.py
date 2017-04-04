@@ -18,12 +18,14 @@ class GameMain():
         pygame.display.set_caption('Manual Control')
         # initializes screen
         self.screen = pygame.display.set_mode([width, height])
+        self.x_view =
+        self.y_view =
 
 
     def MainLoop(self):
         self.LoadSprites()
-	self.scale = pygame.display.get_surface().get_size()[0]/4 # screen is 4 x 3 units initially
-	self.level = 1
+        self.scale = pygame.display.get_surface().get_size()[0]/4 # screen is 4 x 3 units initially
+        self.level = 1
         running = True
         while(running):
             button = False
@@ -57,12 +59,12 @@ class GameMain():
             pygame.draw.rect(screen, (255, 255, 255), (self.scale*(factory.x-(factory.inputs[3])*(1-progress)-.125), self.scale*(factory.y-.125), self.scale/4, self.scale/4), 0)
         # Render factory
         img = pygame.transform.scale(assemblerimg, (int(self.scale), int(self.scale)))
-	screen.blit(img, (self.scale*(factory.x-.5), self.scale*(factory.y-.5)))
+        screen.blit(img, (self.scale*(factory.x-.5), self.scale*(factory.y-.5)))
         # Render output of factory
         if factory.built:
             if factory.t < 20:
                 factory.t += 0.5
-		img = pygame.transform.scale(bearimg, (int(self.scale/4), int(self.scale/4)))
+                img = pygame.transform.scale(bearimg, (int(self.scale/4), int(self.scale/4)))
                 screen.blit(img, (self.scale*(factory.x - .125),self.scale*(factory.y - .125 - factory.t/100.0)))
             else:
                 factory.t = 0
