@@ -1,7 +1,8 @@
 import pygame
 from PIL import Image
-import os, sys
+import os, sys, math, random
 from Producer import Producer
+from Conveyor import Conveyor
 from Game_Constants import *
 import random
 clock = pygame.time.Clock()
@@ -25,9 +26,10 @@ class GameMain():
 
 
     def MainLoop(self):
-        self.factories = []
         self.scale = 40000/self.x_view
         self.filledSpaces = [] # add coordinate tuples whenever a space if filled e.g. (x, y)
+        self.factories = []
+        self.factories.append(Producer('teddybear', self, 0, 0))
         self.addFactory()
         #Background music from the following music
         #http://audionautix.com/?utm_campaign=elearningindustry.com&utm_source=%2Fultimate-list-free-music-elearning-online-education&utm_medium=link
@@ -37,8 +39,9 @@ class GameMain():
         running = True
         while(running):
             self.scale = 40000/self.x_view
-            self.x_view += 0.25
-            self.y_view += 3/16
+            self.x_view += 2
+            self.y_view += 3/2
+            button = False
             clock.tick(80)
             pygame.display.update()
             self.screen.fill((160, 82, 45))
@@ -46,23 +49,16 @@ class GameMain():
             if event.type == pygame.QUIT:
                 running = False
             for factory in self.factories:
-                self.render(self.screen, assemblerimg, assemblerpng, bearimg, factory)
+                self.factory_render(self.screen, assemblerimg, assemblerpng, bearimg, factory)
                 factory.step(pygame.key.get_pressed()[factory.button],self.screen)
-            '''if self.factories[0].score >= 10:
-                self.changeLevel()'''
+                for conveyor in factory.conveyors:
+                    self.conveyor_render(self.screen, conveyor)
 
 
-    def render(self,screen,assemberimg,assemblerpng,bearimg, factory):
+    def factory_render(self, screen, assemberimg, assemblerpng, bearimg, factory):
         # Render inputs to factory
         progress = 1.0*factory.progress/factory.production
-        '''if factory.inputs[0]: # up
-            pygame.draw.rect(screen, (255, 255, 255), (WINDOW_WIDTH/2 + self.scale*(factory.x-.125), WINDOW_HEIGHT/2 + self.scale*(factory.y-(factory.inputs[0])*(1-progress)-.125), self.scale/4, self.scale/4), 0)
-        if factory.inputs[1]: # right
-            pygame.draw.rect(screen, (255, 255, 255), (WINDOW_WIDTH/2 + self.scale*(factory.x+(factory.inputs[1])*(1-progress)-.125), WINDOW_HEIGHT/2 + self.scale*(factory.y-.125), self.scale/4, self.scale/4), 0)
-        if factory.inputs[2]: # down
-            pygame.draw.rect(screen, (255, 255, 255), (WINDOW_WIDTH/2 + self.scale*(factory.x-.125), WINDOW_HEIGHT/2 + self.scale*(factory.y+(factory.inputs[2])*(1-progress)-.125), self.scale/4, self.scale/4), 0)
-        if factory.inputs[3]: # left
-            pygame.draw.rect(screen, (255, 255, 255), (WINDOW_WIDTH/2 + self.scale*(factory.x-(factory.inputs[3])*(1-progress)-.125), WINDOW_HEIGHT/2 + self.scale*(factory.y-.125), self.scale/4, self.scale/4), 0)'''
+        pygame.draw.rect(screen, (255, 255, 255), (WINDOW_WIDTH/2 + self.scale*(factory.x-(1-progress)-.125), WINDOW_HEIGHT/2 + self.scale*(factory.y-.125), self.scale/4, self.scale/4), 0)
         # Render factory
         img = pygame.transform.scale(assemblerimg, (int(self.scale), int(self.scale)))
         screen.blit(img, (WINDOW_WIDTH/2 + self.scale*(factory.x-.5), WINDOW_HEIGHT/2 +self.scale*(factory.y-.5)))
@@ -77,54 +73,20 @@ class GameMain():
                 factory.built = False
 
 
-    def changeLevel(self):
-        self.level += 1
-        self.factories[0].score = 0
-        if self.level == 2:
-            #self.scale *= 2.0/3
-            del self.factories[:]
-            self.factories.append(Producer('teddybear', 2, 2.25, [0,2,2,0]))#left
-            self.factories.append(Producer('teddybear', 4, 2.25, [0,0,2,0], pygame.K_1, 0, 200))#right
-        elif self.level == 3:
-            #self.scale *= 3.0/4
-            del self.factories[:]
-            self.factories.append(Producer('teddybear', 3, 2, [0,2,2,2]))#left
-            self.factories.append(Producer('teddybear', 3, 4, [0,2,0,2]))
-            self.factories.append(Producer('teddybear', 5, 2, [0,0,2,0]))#right
-            self.factories.append(Producer('teddybear', 5, 4, [0,0,0,0]))
-        elif self.level == 4:
-            del self.factories[:]
-            self.factories.append(Producer('teddybear', 4, 2, [2,2,2,2]))#middle
-            self.factories.append(Producer('teddybear', 4, 4, [0,2,0,2]))
-            self.factories.append(Producer('teddybear', 2, 2, [2,0,2,0]))#left
-            self.factories.append(Producer('teddybear', 2, 4, [0,0,0,0]))
-            self.factories.append(Producer('teddybear', 6, 2, [2,0,2,0]))#right
-            self.factories.append(Producer('teddybear', 6, 4, [0,0,0,0]))
-        elif self.level == 5:
-            del self.factories[:]
-            self.factories.append(Producer('teddybear', 4, 3, [2,2,2,2]))#middle
-            self.factories.append(Producer('teddybear', 2, 3, [2,0,2,0]))
-            self.factories.append(Producer('teddybear', 6, 3, [2,0,2,0]))
-            self.factories.append(Producer('teddybear', 4, 5, [0,2,0,2]))#bottom
-            self.factories.append(Producer('teddybear', 2, 5, [0,0,0,0]))
-            self.factories.append(Producer('teddybear', 6, 5, [0,0,0,0]))
-            self.factories.append(Producer('teddybear', 4, 1, [0,2,0,2]))#top
-            self.factories.append(Producer('teddybear', 2, 1, [0,0,0,0]))
-            self.factories.append(Producer('teddybear', 6, 1, [0,0,0,0]))
+    def conveyor_render(self, screen, conveyor):
+        pygame.draw.rect(screen, (0,0,0), (WINDOW_WIDTH/2 + self.scale*conveyor.x - (self.scale/100)*16, WINDOW_HEIGHT/2 + self.scale*conveyor.y - (self.scale/100)*16, (self.scale/100)*32, (self.scale/100)*32), 0)
 
 
-    def addFactory(self):
-        x = (random.random()-.5)*2*WINDOW_WIDTH/self.scale
-        y = (random.random()-.5)*2*WINDOW_HEIGHT/self.scale
+    def addFactory(self, last_x = 0, last_y = 0):
+        x = round((random.random()-.5)*2*WINDOW_WIDTH/self.scale + last_x)
+        y = round((random.random()-.5)*2*WINDOW_HEIGHT/self.scale + last_y)
         if (x, y) in self.filledSpaces:
-            return addFactory()
+            return self.addFactory(last_x, last_y)
+        else:
+            producer = Producer(self.getType(), self, x, y)
+            self.factories.append(producer)
+            return producer
         self.filledSpaces.append((x,y))
-        inputs = []
-	if self.onScreen(x,y):
-            inputs = [self.addFactory()]
-        producer = Producer(self.getType(), x, y, inputs)
-        self.factories.append(producer)
-        return producer
 
 
     def getType(self):
@@ -140,7 +102,7 @@ class GameMain():
 
 
     def onScreen(self, x, y):
-        return x+.5<=WINDOW_WIDTH/self.scale and .5<=x and y+.5<=WINDOW_HEIGHT/self.scale and .5<=y
+        return abs(x)<=WINDOW_WIDTH/self.scale and abs(y)<=WINDOW_HEIGHT/self.scale
 
 if __name__ == '__main__':
     MainWindow = GameMain()
