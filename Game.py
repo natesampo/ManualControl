@@ -18,8 +18,8 @@ class GameMain():
         pygame.display.set_caption('Manual Control')
         # initializes screen
         self.screen = pygame.display.set_mode([width, height])
-        self.x_view =
-        self.y_view =
+        self.x_view = 200
+        self.y_view = 200
 
 
     def MainLoop(self):
