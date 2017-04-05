@@ -34,14 +34,10 @@ class Producer(pygame.sprite.Sprite):
                     producer = self.game.addFactory(self.x, self.y)
                     conveyor = Conveyor(producer, self, producer.x, producer.y)
                 self.num_inputs = 0
-<<<<<<< HEAD
-        self.progress += .82
-=======
         if BUTTON_DICT_TWO[self.button] == 0:
             self.progress += 1
         else:
             self.progress += 0.25/BUTTON_DICT_TWO[self.button]
->>>>>>> 2b1cf8aeb25579d315fd0433a2894705186d5f37
         if self.progress >= self.production-30:
             if button:
                 self.built = True
