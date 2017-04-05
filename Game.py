@@ -5,6 +5,7 @@ from Producer import Producer
 from Conveyor import Conveyor
 from Game_Constants import *
 import random
+
 clock = pygame.time.Clock()
 im = Image.open('TeddyBear.jpg')
 im.thumbnail((64, 64), Image.ANTIALIAS)
@@ -43,7 +44,7 @@ class GameMain():
             self.x_view += 0.5
             self.y_view += 3/8
             button = False
-            clock.tick(80)
+            clock.tick(160)
             pygame.display.update()
             self.screen.fill((160, 82, 45))
             event = pygame.event.poll()
