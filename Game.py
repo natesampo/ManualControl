@@ -17,7 +17,7 @@ bearimg = pygame.image.load('ThisGuy.jpg')
 
 class GameMain():
     """Main Game Class"""
-    def __init__(self,width=800,height=600):
+    def __init__(self,width=WINDOW_WIDTH,height=WINDOW_HEIGHT):
         pygame.init()
         pygame.display.set_caption('Manual Control')
         # initializes screen
@@ -48,11 +48,11 @@ class GameMain():
             pygame.display.update()
             self.screen.fill((160, 82, 45))
             event = pygame.event.poll()
-            if (event.type is KEYDOWN and e.key == K_ESCAPE):
-                if screen.get_flags() & FULLSCREEN:
-                    pygame.display.set_mode(size)
+            if (event.type is pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+                if self.screen.get_flags() & pygame.FULLSCREEN:
+                    pygame.display.set_mode([WINDOW_WIDTH, WINDOW_HEIGHT])
                 else:
-                    pygame.display.set_mode(size, FULLSCREEN, pygame.HWSURFACE)
+                    pygame.display.set_mode([WINDOW_WIDTH, WINDOW_HEIGHT], pygame.FULLSCREEN | pygame.HWSURFACE)
             if event.type == pygame.QUIT:
                 running = False
             for factory in self.factories:
