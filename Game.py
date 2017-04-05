@@ -42,8 +42,8 @@ class GameMain():
         running = True
         while(running):
             self.scale = 40000/self.x_view
-            self.x_view += 0.125
-            self.y_view += 3/32
+            self.x_view += 0.125*5
+            self.y_view += 3/32*5
             button = False
             clock.tick(160)
             pygame.display.update()
@@ -96,8 +96,16 @@ class GameMain():
 
 
     def addFactory(self, last_x = 0, last_y = 0):
-        x = round((random.random()-.5)*16 + last_x)
-        y = round((random.random()-.5)*16 + last_y)
+	randx = random.random()-.5
+	signx = -1 if randx<0 else 1
+	randy = random.random()-.5
+	signy = -1 if randy<0 else 1
+	if random.random()>.5:
+            x = round(signx*(2+(abs(randx)**2)*(WINDOW_WIDTH/self.scale*4)) + last_x)
+            y = round(signy*((abs(randy)**2)*(WINDOW_HEIGHT/self.scale*4)) + last_y)
+	else:
+            x = round(signx*((abs(randx)**2)*(WINDOW_WIDTH/self.scale*4)) + last_x)
+            y = round(signy*(2+(abs(randy)**2)*(WINDOW_HEIGHT/self.scale*4)) + last_y)
         if (x, y) in self.filledSpaces:
             return self.addFactory(last_x, last_y)
         else:
