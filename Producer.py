@@ -3,6 +3,8 @@ from Conveyor import Conveyor
 class Producer(pygame.sprite.Sprite):
     def __init__(self, product, game, x=-1, y=-1, num_inputs=1, button = pygame.K_1, progress=0, production=100, built=False):
 	# inputs = distance to nearest feeder factory in directions [up, right, down, left]
+        super(Producer, self).__init__()
+        #self.image = pygame.image.load(img)
         self.game = game
         self.product = product
         self.x = x

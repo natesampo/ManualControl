@@ -31,8 +31,8 @@ class GameMain():
         self.button_dict = {}
         self.scale = 40000/self.x_view
         self.filledSpaces = [] # add coordinate tuples whenever a space if filled e.g. (x, y)
-        self.factories = []
-        self.factories.append(Producer('teddybear', self, 0, 0))
+        self.factories = pygame.sprite.Group()
+        self.factories.add(Producer('teddybear',self,0,0))
         self.addFactory()
         #Background music from the following music
         #http://audionautix.com/?utm_campaign=elearningindustry.com&utm_source=%2Fultimate-list-free-music-elearning-online-education&utm_medium=link
@@ -47,6 +47,7 @@ class GameMain():
             button = False
             clock.tick(160)
             pygame.display.update()
+            #self.factories.draw(self.screen) will switch to this when we fix stuff
             self.screen.fill((160, 82, 45))
             event = pygame.event.poll()
             if (event.type is pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
@@ -56,7 +57,7 @@ class GameMain():
                     pygame.display.set_mode([WINDOW_WIDTH, WINDOW_HEIGHT], pygame.FULLSCREEN | pygame.HWSURFACE)
             if event.type == pygame.QUIT:
                 running = False
-            for factory in self.factories:
+            for factory in self.factories.sprites():
                 for conveyor in factory.conveyors:
                     self.conveyor_render(self.screen, conveyor)
             for factory in self.factories:
@@ -96,21 +97,21 @@ class GameMain():
 
 
     def addFactory(self, last_x = 0, last_y = 0):
-	randx = random.random()-.5
-	signx = -1 if randx<0 else 1
-	randy = random.random()-.5
-	signy = -1 if randy<0 else 1
-	if random.random()>.5:
+        randx = random.random()-.5
+        signx = -1 if randx<0 else 1
+        randy = random.random()-.5
+        signy = -1 if randy<0 else 1
+        if random.random()>.5:
             x = round(signx*(2+(abs(randx)**2)*(WINDOW_WIDTH/self.scale*4)) + last_x)
             y = round(signy*((abs(randy)**2)*(WINDOW_HEIGHT/self.scale*4)) + last_y)
-	else:
+        else:
             x = round(signx*((abs(randx)**2)*(WINDOW_WIDTH/self.scale*4)) + last_x)
             y = round(signy*(2+(abs(randy)**2)*(WINDOW_HEIGHT/self.scale*4)) + last_y)
         if (x, y) in self.filledSpaces:
             return self.addFactory(last_x, last_y)
         else:
             producer = Producer(self.getType(), self, x, y, button = BUTTON_DICT_M[math.floor(random.random()*10)])
-            self.factories.append(producer)
+            self.factories.add(producer)
             return producer
         self.filledSpaces.append((x,y))
 
