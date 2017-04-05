@@ -49,14 +49,15 @@ class GameMain():
             pygame.display.update()
             #self.factories.draw(self.screen) will switch to this when we fix stuff
             self.screen.fill((160, 82, 45))
-            event = pygame.event.poll()
-            if (event.type is pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
-                if self.screen.get_flags() & pygame.FULLSCREEN:
-                    pygame.display.set_mode([WINDOW_WIDTH, WINDOW_HEIGHT])
-                else:
-                    pygame.display.set_mode([WINDOW_WIDTH, WINDOW_HEIGHT], pygame.FULLSCREEN | pygame.HWSURFACE)
-            if event.type == pygame.QUIT:
-                running = False
+            for event in pygame.event.get():
+                if (event.type is pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+                    if self.screen.get_flags() & pygame.FULLSCREEN:
+                        pygame.display.set_mode([WINDOW_WIDTH, WINDOW_HEIGHT])
+                    else:
+                        pygame.display.set_mode([WINDOW_WIDTH, WINDOW_HEIGHT], pygame.FULLSCREEN | pygame.HWSURFACE)
+                if event.type == pygame.QUIT:
+                    pygame.display.quit()
+                    sys.exit()
             for factory in self.factories.sprites():
                 for conveyor in factory.conveyors:
                     self.conveyor_render(self.screen, conveyor)
