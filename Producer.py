@@ -1,5 +1,6 @@
 import pygame
 from Conveyor import Conveyor
+from Game_Constants import *
 class Producer(pygame.sprite.Sprite):
     def __init__(self, product, game, x=-1, y=-1, num_inputs=1, button = pygame.K_1, progress=0, production=100, built=False):
 	# inputs = distance to nearest feeder factory in directions [up, right, down, left]
@@ -35,7 +36,10 @@ class Producer(pygame.sprite.Sprite):
                     producer = self.game.addFactory(self.x, self.y)
                     conveyor = Conveyor(producer, self, producer.x, producer.y)
                 self.num_inputs = 0
-        self.progress += 3.0/2
+        if BUTTON_DICT_TWO[self.button] == 0:
+            self.progress += 1
+        else:
+            self.progress += 0.25/BUTTON_DICT_TWO[self.button]
         if self.progress >= self.production-30:
             if button:
                 self.built = True
