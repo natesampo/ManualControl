@@ -26,6 +26,7 @@ class GameMain():
 
 
     def MainLoop(self):
+        self.button_dict = {}
         self.scale = 40000/self.x_view
         self.filledSpaces = [] # add coordinate tuples whenever a space if filled e.g. (x, y)
         self.factories = []
@@ -46,6 +47,11 @@ class GameMain():
             pygame.display.update()
             self.screen.fill((160, 82, 45))
             event = pygame.event.poll()
+            if (event.type is KEYDOWN and e.key == K_ESCAPE):
+                if screen.get_flags() & FULLSCREEN:
+                    pygame.display.set_mode(size)
+                else:
+                    pygame.display.set_mode(size, FULLSCREEN, pygame.HWSURFACE)
             if event.type == pygame.QUIT:
                 running = False
             for factory in self.factories:
@@ -53,15 +59,24 @@ class GameMain():
                 factory.step(pygame.key.get_pressed()[factory.button],self.screen)
                 for conveyor in factory.conveyors:
                     self.conveyor_render(self.screen, conveyor)
+                if factory.button not in list(self.button_dict.keys()):
+                    self.button_dict[factory.button] = factory
+                if factory in list(self.button_dict.values()):
+                    place = list(self.button_dict.values()).index(factory)
+                    self.prod_render(self.screen, factory, place)
+
+
+    def prod_render(self, screen, factory, place):
+        progress = 50*factory.progress/factory.production
+        pygame.draw.rect(screen, (255, 255, 255), (32*place + 16, 32+progress, 16, 16), 0)
+        pygame.draw.rect(screen, (255, 255, 255), (32*place, 102, 48, 4), 0)
 
 
     def factory_render(self, screen, assemberimg, assemblerpng, bearimg, factory):
         # Render inputs to factory
-        progress = 1.0*factory.progress/factory.production
-        pygame.draw.rect(screen, (255, 255, 255), (WINDOW_WIDTH/2 + self.scale*(factory.x-(1-progress)-.125), WINDOW_HEIGHT/2 + self.scale*(factory.y-.125), self.scale/4, self.scale/4), 0)
         # Render factory
         img = pygame.transform.scale(assemblerimg, (int(self.scale), int(self.scale)))
-        screen.blit(img, (WINDOW_WIDTH/2 + self.scale*(factory.x-.5), WINDOW_HEIGHT/2 +self.scale*(factory.y-.5)))
+        screen.blit(img, (WINDOW_WIDTH/2 + self.scale*(factory.x-.5), WINDOW_HEIGHT/2 + self.scale*(factory.y-.5)))
         # Render output of factory
         if factory.built:
             if factory.t < 20:
