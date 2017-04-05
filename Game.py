@@ -4,6 +4,7 @@ import os, sys, math, random
 from Producer import Producer
 from Conveyor import Conveyor
 from Game_Constants import *
+import math
 import random
 
 clock = pygame.time.Clock()
@@ -41,8 +42,8 @@ class GameMain():
         running = True
         while(running):
             self.scale = 40000/self.x_view
-            self.x_view += 0.5
-            self.y_view += 3/8
+            self.x_view += 0.125
+            self.y_view += 3/32
             button = False
             clock.tick(160)
             pygame.display.update()
@@ -56,10 +57,11 @@ class GameMain():
             if event.type == pygame.QUIT:
                 running = False
             for factory in self.factories:
-                self.factory_render(self.screen, assemblerimg, assemblerpng, bearimg, factory)
-                factory.step(pygame.key.get_pressed()[factory.button],self.screen)
                 for conveyor in factory.conveyors:
                     self.conveyor_render(self.screen, conveyor)
+            for factory in self.factories:
+                self.factory_render(self.screen, assemblerimg, assemblerpng, bearimg, factory)
+                factory.step(pygame.key.get_pressed()[factory.button],self.screen)
                 if factory.button not in list(self.button_dict.keys()):
                     self.button_dict[factory.button] = factory
                 if factory in list(self.button_dict.values()):
@@ -94,12 +96,12 @@ class GameMain():
 
 
     def addFactory(self, last_x = 0, last_y = 0):
-        x = round((random.random()-.5)*8 + last_x)
-        y = round((random.random()-.5)*8 + last_y)
+        x = round((random.random()-.5)*16 + last_x)
+        y = round((random.random()-.5)*16 + last_y)
         if (x, y) in self.filledSpaces:
             return self.addFactory(last_x, last_y)
         else:
-            producer = Producer(self.getType(), self, x, y)
+            producer = Producer(self.getType(), self, x, y, button = BUTTON_DICT_M[math.floor(random.random()*10)])
             self.factories.append(producer)
             return producer
         self.filledSpaces.append((x,y))
@@ -121,6 +123,6 @@ class GameMain():
         return abs(x)<=WINDOW_WIDTH/self.scale and abs(y)<=WINDOW_HEIGHT/self.scale
 
 if __name__ == '__main__':
-    sys.setrecursionlimit(1500)
+    sys.setrecursionlimit(5000)
     MainWindow = GameMain()
     MainWindow.MainLoop()
