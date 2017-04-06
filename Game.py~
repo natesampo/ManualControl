@@ -8,13 +8,13 @@ import math
 import random
 
 clock = pygame.time.Clock()
-im = Image.open('images/TeddyBear.jpg')
+im = Image.open('TeddyBear.jpg')
 im.thumbnail((64, 64), Image.ANTIALIAS)
-im.save('images/ThisGuy.jpg', "JPEG")
-assemblerpng = Image.open('images/Assembler.png')
+im.save('ThisGuy.jpg', "JPEG")
+assemblerpng = Image.open('Assembler.png')
 
-assemblerimg = pygame.image.load('images/Assembler.png')
-bearimg = pygame.image.load('images/ThisGuy.jpg')
+assemblerimg = pygame.image.load('Assembler.png')
+bearimg = pygame.image.load('ThisGuy.jpg')
 
 class GameMain():
     """Main Game Class"""
