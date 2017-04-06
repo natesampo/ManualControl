@@ -39,7 +39,7 @@ class GameMain():
         self.addFactory()
         #Background music from the following music
         #http://audionautix.com/?utm_campaign=elearningindustry.com&utm_source=%2Fultimate-list-free-music-elearning-online-education&utm_medium=link
-        pygame.mixer.music.load('BigCarTheft.mp3')
+        pygame.mixer.music.load('BigCarTheft.ogg')
         pygame.mixer.music.play(-1)
 
         running = True
