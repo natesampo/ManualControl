@@ -32,7 +32,7 @@ class GameMain():
         self.scale = 40000/self.x_view
         self.filledSpaces = [] # add coordinate tuples whenever a space if filled e.g. (x, y)
         self.factories = pygame.sprite.Group()
-        self.factories.add(Producer('teddybear',self,0,0))
+        self.factories.add(Producer('teddybear',self,assemblerimg,0,0))
         self.addFactory()
         #Background music from the following music
         #http://audionautix.com/?utm_campaign=elearningindustry.com&utm_source=%2Fultimate-list-free-music-elearning-online-education&utm_medium=link
@@ -69,6 +69,7 @@ class GameMain():
                 if factory in list(self.button_dict.values()):
                     place = list(self.button_dict.values()).index(factory)
                     self.prod_render(self.screen, factory, place)
+            self.factories.draw(self.screen)
 
 
     def prod_render(self, screen, factory, place):
@@ -81,7 +82,9 @@ class GameMain():
         # Render inputs to factory
         # Render factory
         img = pygame.transform.scale(assemblerimg, (int(self.scale), int(self.scale)))
-        screen.blit(img, (WINDOW_WIDTH/2 + self.scale*(factory.x-.5), WINDOW_HEIGHT/2 + self.scale*(factory.y-.5)))
+        factory.image = img
+        factory.rect.topleft  = (WINDOW_WIDTH/2 + self.scale*(factory.x-.5), WINDOW_HEIGHT/2 + self.scale*(factory.y-.5))
+        #screen.blit(img, (WINDOW_WIDTH/2 + self.scale*(factory.x-.5), WINDOW_HEIGHT/2 + self.scale*(factory.y-.5)))
         # Render output of factory
         if factory.built:
             if factory.t < 20:
@@ -111,7 +114,7 @@ class GameMain():
         if (x, y) in self.filledSpaces:
             return self.addFactory(last_x, last_y)
         else:
-            producer = Producer(self.getType(), self, x, y, button = BUTTON_DICT_M[math.floor(random.random()*10)])
+            producer = Producer(self.getType(), self, assemblerimg,x, y, button = BUTTON_DICT_M[math.floor(random.random()*10)])
             self.factories.add(producer)
             return producer
         self.filledSpaces.append((x,y))
