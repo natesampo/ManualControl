@@ -31,7 +31,10 @@ class GameMain():
         self.button_dict = {}
         self.scale = 40000/self.x_view
         self.filledSpaces = [] # add coordinate tuples whenever a space if filled e.g. (x, y)
+        # sprite groups so we can render everything all at once
+        self.allConveyorSprites = pygame.sprite.Group()
         self.factories = pygame.sprite.Group()
+        self.allSprites = pygame.sprite.Group(self.allConveyorSprites,self.factories)
         self.factories.add(Producer('teddybear',self,assemblerimg,0,0))
         self.addFactory()
         #Background music from the following music
@@ -42,13 +45,15 @@ class GameMain():
         running = True
         while(running):
             self.scale = 40000/self.x_view
-            self.x_view += 0.125*5
-            self.y_view += 3/32*5
+            self.x_view += 0.125
+            self.y_view += 3/32
             button = False
             clock.tick(160)
+
             pygame.display.update()
-            #self.factories.draw(self.screen) will switch to this when we fix stuff
             self.screen.fill((160, 82, 45))
+            self.allConveyorSprites.draw(self.screen)
+            self.factories.draw(self.screen)
             for event in pygame.event.get():
                 if (event.type is pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                     if self.screen.get_flags() & pygame.FULLSCREEN:
@@ -69,9 +74,6 @@ class GameMain():
                 if factory in list(self.button_dict.values()):
                     place = list(self.button_dict.values()).index(factory)
                     self.prod_render(self.screen, factory, place)
-            self.factories.draw(self.screen)
-
-
     def prod_render(self, screen, factory, place):
         progress = 50*factory.progress/factory.production
         pygame.draw.rect(screen, (255, 255, 255), (32*place + 16, 32+progress, 16, 16), 0)
@@ -97,7 +99,8 @@ class GameMain():
 
 
     def conveyor_render(self, screen, conveyor):
-        pygame.draw.rect(screen, (0,0,0), (WINDOW_WIDTH/2 + self.scale*conveyor.x - (self.scale/100)*16, WINDOW_HEIGHT/2 + self.scale*conveyor.y - (self.scale/100)*16, (self.scale/100)*32, (self.scale/100)*32), 0)
+        conveyor.update(self.scale)
+        #pygame.draw.rect(screen, (0,0,0), (WINDOW_WIDTH/2 + self.scale*conveyor.x - (self.scale/100)*16, WINDOW_HEIGHT/2 + self.scale*conveyor.y - (self.scale/100)*16, (self.scale/100)*32, (self.scale/100)*32), 0)
 
 
     def addFactory(self, last_x = 0, last_y = 0):

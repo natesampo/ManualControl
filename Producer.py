@@ -25,7 +25,8 @@ class Producer(pygame.sprite.Sprite):
         if self.game.onScreen(self.x, self.y):
             for i in range(0, self.num_inputs):
                 producer = game.addFactory(self.x, self.y)
-                conveyor = Conveyor(producer, self, producer.x, producer.y)
+                conveyor = Conveyor(producer, self, producer.x, producer.y,self.game)
+                self.game.allConveyorSprites.add(conveyor)
             self.num_inputs = 0
         if self.product == "teddybear":
             self.production = 100
@@ -37,7 +38,8 @@ class Producer(pygame.sprite.Sprite):
             if self.game.onScreen(self.x, self.y):
                 for i in range(0, self.num_inputs):
                     producer = self.game.addFactory(self.x, self.y)
-                    conveyor = Conveyor(producer, self, producer.x, producer.y)
+                    conveyor = Conveyor(producer, self, producer.x, producer.y,self.game)
+                    self.game.allConveyorSprites.add(conveyor)
                 self.num_inputs = 0
         if BUTTON_DICT_TWO[self.button] == 0:
             self.progress += 1
