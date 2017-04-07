@@ -32,12 +32,6 @@ class GameMain():
         self.scale = 40000/self.x_view
         self.filledSpaces = [] # add coordinate tuples whenever a space if filled e.g. (x, y)
 	self.setRhythms(1) # 4 rhythms, each expressed as a array of 8 ones or zeros (for each 8th note beat)
-	self.setRhythms(2)
-	self.setRhythms(3)
-	self.setRhythms(4)
-	self.setRhythms(5)
-	self.setRhythms(6)
-	self.setRhythms(7)
         # sprite groups so we can render everything all at once
         self.allConveyorSprites = pygame.sprite.Group()
         self.factories = pygame.sprite.Group()
@@ -82,7 +76,7 @@ class GameMain():
                     place = list(self.button_dict.values()).index(factory)
                     self.prod_render(self.screen, factory, place)
     def prod_render(self, screen, factory, place):
-        progress = 50*factory.progress/factory.production
+        progress = 50*factory.progress
         pygame.draw.rect(screen, (255, 255, 255), (32*place + 16, 32+progress, 16, 16), 0)
         pygame.draw.rect(screen, (255, 255, 255), (32*place, 102, 48, 4), 0)
 
@@ -124,7 +118,7 @@ class GameMain():
         if (x, y) in self.filledSpaces:
             return self.addFactory(last_x, last_y)
         else:
-            producer = Producer(self.getType(), self, assemblerimg,x, y, button = BUTTON_DICT_M[math.floor(random.random()*10)])
+            producer = Producer(self.getType(), self, assemblerimg,x, y, button = BUTTON_DICT_M[math.floor(random.random()*4)])
             self.factories.add(producer)
             return producer
         self.filledSpaces.append((x,y))
