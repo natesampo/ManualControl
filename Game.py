@@ -33,6 +33,8 @@ class GameMain():
         self.scale = 40000/self.x_view
         self.filledSpaces = [] # add coordinate tuples whenever a space if filled e.g. (x, y)
 
+        self.setRhythms(1) # 4 rhythms, each expressed as a array of 8 ones or zeros (for each 8th note beat)
+
         # sprite groups so we can render everything all at once
         self.allConveyorSprites = pygame.sprite.Group()
         self.factories = pygame.sprite.Group()
@@ -53,6 +55,8 @@ class GameMain():
         self.timePassed = 0
         self.displayDebug = False
         while(1):
+            t = 0
+
             self.scale = 40000/self.x_view
             self.x_view += 0.125
             self.y_view += 3/32
@@ -63,6 +67,10 @@ class GameMain():
 
             self.checkFPS()
             self.trackSongPos()  # smooths out accuracy of song position
+
+            clock.tick(160)
+            t += 1/160.0/60*135
+            t = t%4
 
             pygame.display.update()
             self.screen.fill((160, 82, 45))
@@ -86,7 +94,7 @@ class GameMain():
                     self.conveyor_render(self.screen, conveyor)
             for factory in self.factories:
                 self.factory_render(self.screen, assemblerimg, assemblerpng, bearimg, factory)
-                factory.step(pygame.key.get_pressed()[factory.button],self.screen)
+                factory.step(pygame.key.get_pressed()[factory.button], t)
                 if factory.button not in list(self.button_dict.keys()):
                     self.button_dict[factory.button] = factory
                 if factory in list(self.button_dict.values()):
@@ -131,7 +139,7 @@ class GameMain():
             self.lastReportedPlayheadPosition = myMusic.get_pos()
 
     def prod_render(self, screen, factory, place):
-        progress = 50*factory.progress/factory.production
+        progress = 50*factory.progress
         pygame.draw.rect(screen, (255, 255, 255), (32*place + 16, 32+progress, 16, 16), 0)
         pygame.draw.rect(screen, (255, 255, 255), (32*place, 102, 48, 4), 0)
 
@@ -173,7 +181,7 @@ class GameMain():
         if (x, y) in self.filledSpaces:
             return self.addFactory(last_x, last_y)
         else:
-            producer = Producer(self.getType(), self, assemblerimg,x, y, button = BUTTON_DICT_M[math.floor(random.random()*10)])
+            producer = Producer(self.getType(), self, assemblerimg,x, y, button = BUTTON_DICT_M[math.floor(random.random()*4)+1])
             self.factories.add(producer)
             return producer
         self.filledSpaces.append((x,y))
@@ -193,6 +201,59 @@ class GameMain():
 
     def onScreen(self, x, y):
         return abs(x)<=WINDOW_WIDTH/self.scale and abs(y)<=WINDOW_HEIGHT/self.scale
+
+
+    def setRhythms(self, difficulty):
+	self.rhythms = range(4)
+	for i in range(0,4):
+            duplicates = True
+            while duplicates:
+		self.rhythms[i] = [0]*8
+		r1 = random.random()
+		r2 = random.random()
+		r3 = random.random()
+		if difficulty-i <= 1:
+		    self.rhythms[i][int(r1*4)*2] = 1
+		elif difficulty-i <= 2:
+		    self.rhythms[i][int(r1*8)] = 1
+		elif difficulty-i <= 3:
+		    r1 = int(r1*4)*2
+		    r2 = int(r2*3)*2
+		    if r2>=r1: r2 += 1
+		    self.rhythms[i][r1] = 1
+		    self.rhythms[i][r2] = 1
+		elif difficulty-i <= 4:
+		    r1 = int(r1*8)
+		    r2 = int(r2*7)
+		    if r2>=r1: r2 += 1
+		    self.rhythms[i][r1] = 1
+		    self.rhythms[i][r2] = 1
+                elif difficulty-i <= 5:
+		    r1 = int(r1*4)*2
+		    r2 = int(r2*3)*2
+		    r3 = int(r3*2)*2
+		    if r2>=r1: r2 += 1
+		    if r3>=r1: r3 += 1
+		    if r3>=r2: r3 += 1
+		    self.rhythms[i][r1] = 1
+		    self.rhythms[i][r2] = 1
+		    self.rhythms[i][r3] = 1
+                else:
+		    r1 = int(r1*8)
+		    r2 = int(r2*7)
+		    r3 = int(r3*6)
+		    if r2>=r1: r2 += 1
+		    if r3>=r1: r3 += 1
+		    if r3>=r2: r3 += 1
+		    self.rhythms[i][r1] = 1
+		    self.rhythms[i][r2] = 1
+		    self.rhythms[i][r3] = 1
+                duplicates = False
+                for j in range(i):
+                    if self.rhythms[i] == self.rhythms[j]:
+                        duplicates = True
+        print("rhythms: "+str(self.rhythms))
+
 
 if __name__ == '__main__':
     sys.setrecursionlimit(5000)
