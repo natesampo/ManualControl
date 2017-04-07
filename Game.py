@@ -54,8 +54,9 @@ class GameMain():
         self.fps = 0
         self.timePassed = 0
         self.displayDebug = False
+        t = 0
         while(1):
-            t = 0
+
 
             self.scale = 40000/self.x_view
             self.x_view += 0.125
@@ -204,50 +205,50 @@ class GameMain():
 
 
     def setRhythms(self, difficulty):
-	self.rhythms = range(4)
-	for i in range(0,4):
+        self.rhythms = [0]*4
+        for i in range(0,4):
             duplicates = True
             while duplicates:
-		self.rhythms[i] = [0]*8
-		r1 = random.random()
-		r2 = random.random()
-		r3 = random.random()
-		if difficulty-i <= 1:
-		    self.rhythms[i][int(r1*4)*2] = 1
-		elif difficulty-i <= 2:
-		    self.rhythms[i][int(r1*8)] = 1
-		elif difficulty-i <= 3:
-		    r1 = int(r1*4)*2
-		    r2 = int(r2*3)*2
-		    if r2>=r1: r2 += 1
-		    self.rhythms[i][r1] = 1
-		    self.rhythms[i][r2] = 1
-		elif difficulty-i <= 4:
-		    r1 = int(r1*8)
-		    r2 = int(r2*7)
-		    if r2>=r1: r2 += 1
-		    self.rhythms[i][r1] = 1
-		    self.rhythms[i][r2] = 1
+                self.rhythms[i] = [0]*8
+                r1 = random.random()
+                r2 = random.random()
+                r3 = random.random()
+                if difficulty-i <= 1:
+                    self.rhythms[i][int(r1*4)*2] = 1
+                elif difficulty-i <= 2:
+                    self.rhythms[i][int(r1*8)] = 1
+                elif difficulty-i <= 3:
+                    r1 = int(r1*4)*2
+                    r2 = int(r2*3)*2
+                    if r2>=r1: r2 += 1
+                    self.rhythms[i][r1] = 1
+                    self.rhythms[i][r2] = 1
+                elif difficulty-i <= 4:
+                    r1 = int(r1*8)
+                    r2 = int(r2*7)
+                    if r2>=r1: r2 += 1
+                    self.rhythms[i][r1] = 1
+                    self.rhythms[i][r2] = 1
                 elif difficulty-i <= 5:
-		    r1 = int(r1*4)*2
-		    r2 = int(r2*3)*2
-		    r3 = int(r3*2)*2
-		    if r2>=r1: r2 += 1
-		    if r3>=r1: r3 += 1
-		    if r3>=r2: r3 += 1
-		    self.rhythms[i][r1] = 1
-		    self.rhythms[i][r2] = 1
-		    self.rhythms[i][r3] = 1
+                    r1 = int(r1*4)*2
+                    r2 = int(r2*3)*2
+                    r3 = int(r3*2)*2
+                    if r2>=r1: r2 += 1
+                    if r3>=r1: r3 += 1
+                    if r3>=r2: r3 += 1
+                    self.rhythms[i][r1] = 1
+                    self.rhythms[i][r2] = 1
+                    self.rhythms[i][r3] = 1
                 else:
-		    r1 = int(r1*8)
-		    r2 = int(r2*7)
-		    r3 = int(r3*6)
-		    if r2>=r1: r2 += 1
-		    if r3>=r1: r3 += 1
-		    if r3>=r2: r3 += 1
-		    self.rhythms[i][r1] = 1
-		    self.rhythms[i][r2] = 1
-		    self.rhythms[i][r3] = 1
+                    r1 = int(r1*8)
+                    r2 = int(r2*7)
+                    r3 = int(r3*6)
+                    if r2>=r1: r2 += 1
+                    if r3>=r1: r3 += 1
+                    if r3>=r2: r3 += 1
+                    self.rhythms[i][r1] = 1
+                    self.rhythms[i][r2] = 1
+                    self.rhythms[i][r3] = 1
                 duplicates = False
                 for j in range(i):
                     if self.rhythms[i] == self.rhythms[j]:

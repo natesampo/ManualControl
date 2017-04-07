@@ -31,7 +31,7 @@ class Producer(pygame.sprite.Sprite):
     def update(self):
         self.rect.topleft = (x,y)
 
-    def step(self, button, t=0):
+    def step(self, button, t):
         # t = number of beats since start of last measure (not necessarily a whole number)
 	# add new factories once on screen
         if self.num_inputs != 0:
@@ -41,20 +41,7 @@ class Producer(pygame.sprite.Sprite):
                     conveyor = Conveyor(producer, self, producer.x, producer.y,self.game)
                     self.game.allConveyorSprites.add(conveyor)
                 self.num_inputs = 0
-<<<<<<< HEAD
-        if BUTTON_DICT_TWO[self.button] == 0:
-            self.progress += 1
-        else:
-            self.progress += 0.25/BUTTON_DICT_TWO[self.button]
-        if self.progress >= self.production-30:
-            if button:
-                self.built = True
-        if self.progress >= self.production+15:
-            self.progress = 0
-            if self.built:
-                self.score += 1
 
-=======
 	# check if a beat was hit
         self.progress = 0 # TODO: add one progress value per note in the rhythm
         for i, beat in enumerate(self.rhythm):
@@ -69,5 +56,3 @@ class Producer(pygame.sprite.Sprite):
                         self.t = 0
                 else:
                         self.beatsHit[i] = 0
-            
->>>>>>> a97daedc2ff5ece858281cefc669b01323447a18
