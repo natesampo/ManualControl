@@ -8,6 +8,8 @@ import math
 import random
 
 clock = pygame.time.Clock()
+myMusic = pygame.mixer.music
+
 im = Image.open('images/TeddyBear.jpg')
 im.thumbnail((64, 64), Image.ANTIALIAS)
 im.save('images/ThisGuy.jpg', "JPEG")
@@ -26,29 +28,41 @@ class GameMain():
         self.x_view = 200
         self.y_view = self.x_view * 3/4
 
-
     def MainLoop(self):
         self.button_dict = {}
         self.scale = 40000/self.x_view
         self.filledSpaces = [] # add coordinate tuples whenever a space if filled e.g. (x, y)
+
         # sprite groups so we can render everything all at once
         self.allConveyorSprites = pygame.sprite.Group()
         self.factories = pygame.sprite.Group()
         self.allSprites = pygame.sprite.Group(self.allConveyorSprites,self.factories)
         self.factories.add(Producer('teddybear',self,assemblerimg,0,0))
         self.addFactory()
+
         #Background music from the following music
         #http://audionautix.com/?utm_campaign=elearningindustry.com&utm_source=%2Fultimate-list-free-music-elearning-online-education&utm_medium=link
-        pygame.mixer.music.load('BigCarTheft.ogg')
-        pygame.mixer.music.play(-1)
-
-        running = True
-        while(running):
+        myMusic.load('BigCarTheft.ogg')
+        myMusic.play(-1)
+        self.songTime = 0  # how far along in the song the system thinks we are in ms
+        self.lastReportedPlayheadPosition = 0  # the last reported song position from the mixer
+        self.renderTeddy = False
+        self.counter= 0
+        self.frameCounter = 0
+        self.fps = 0
+        self.timePassed = 0
+        self.displayDebug = False
+        while(1):
             self.scale = 40000/self.x_view
             self.x_view += 0.125
             self.y_view += 3/32
             button = False
-            clock.tick(160)
+
+            # frameTimeDifference attribute keeps track of the time passed between this frame and the last
+            self.frameTimeDifference = clock.tick(60)  #clock.tick also is limiting the frame rate to 60fps
+
+            self.checkFPS()
+            self.trackSongPos()  # smooths out accuracy of song position
 
             pygame.display.update()
             self.screen.fill((160, 82, 45))
@@ -60,9 +74,13 @@ class GameMain():
                         pygame.display.set_mode([WINDOW_WIDTH, WINDOW_HEIGHT])
                     else:
                         pygame.display.set_mode([WINDOW_WIDTH, WINDOW_HEIGHT], pygame.FULLSCREEN | pygame.HWSURFACE)
+                if event.type is pygame.KEYDOWN and event.key == pygame.K_F3:
+                    self.displayDebug = not self.displayDebug
+
                 if event.type == pygame.QUIT:
                     pygame.display.quit()
                     sys.exit()
+
             for factory in self.factories.sprites():
                 for conveyor in factory.conveyors:
                     self.conveyor_render(self.screen, conveyor)
@@ -74,6 +92,44 @@ class GameMain():
                 if factory in list(self.button_dict.values()):
                     place = list(self.button_dict.values()).index(factory)
                     self.prod_render(self.screen, factory, place)
+            if self.displayDebug:
+                self.renderDebug()
+            self.checkBeat()
+    def checkFPS(self):
+        self.frameCounter+=1
+        self.timePassed += self.frameTimeDifference
+        if self.timePassed >= 1000:
+            self.fps = self.frameCounter
+            self.frameCounter = 0
+            self.timePassed = 0
+
+    def renderDebug(self):
+        if pygame.font:
+            font = pygame.font.Font(None, 36)
+            text = font.render("fps: %s" % self.fps,1,(0,0,0))
+            textpos = text.get_rect(top=100, centerx = self.screen.get_width()/2)
+            self.screen.blit(text, textpos)
+
+    def checkBeat(self):
+        if self.songTime/msPB - int(self.songTime/msPB) < 0.04:
+            self.renderTeddy = True
+        if self.renderTeddy:
+            self.counter +=1
+            if self.counter==5:
+                self.counter = 0
+                self.renderTeddy = False
+            for factory in self.factories:
+                img = pygame.transform.scale(bearimg, (int(self.scale/4), int(self.scale/4)))
+                self.screen.blit(img, (WINDOW_WIDTH/2 + self.scale*(factory.x - .125), WINDOW_HEIGHT/2 + self.scale*(factory.y - .125 - factory.t/100.0)))
+
+
+    def trackSongPos(self):
+        self.songTime += self.frameTimeDifference
+        if(not myMusic.get_pos()==self.lastReportedPlayheadPosition):
+            # sets songTime to an average of itself and the position the mixer says the music is
+            self.songTime = (self.songTime + myMusic.get_pos())/2
+            self.lastReportedPlayheadPosition = myMusic.get_pos()
+
     def prod_render(self, screen, factory, place):
         progress = 50*factory.progress/factory.production
         pygame.draw.rect(screen, (255, 255, 255), (32*place + 16, 32+progress, 16, 16), 0)

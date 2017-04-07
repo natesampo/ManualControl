@@ -52,3 +52,4 @@ class Producer(pygame.sprite.Sprite):
             self.progress = 0
             if self.built:
                 self.score += 1
+
