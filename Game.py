@@ -42,7 +42,7 @@ class GameMain():
         #http://audionautix.com/?utm_campaign=elearningindustry.com&utm_source=%2Fultimate-list-free-music-elearning-online-education&utm_medium=link
         pygame.mixer.music.load('BigCarTheft.ogg')
         pygame.mixer.music.play(-1)
-
+	t = 0
         running = True
         while(running):
             self.scale = 40000/self.x_view
@@ -50,7 +50,8 @@ class GameMain():
             self.y_view += 3/32
             button = False
             clock.tick(160)
-
+	    t += 1/160.0/60*135
+	    t = t%4
             pygame.display.update()
             self.screen.fill((160, 82, 45))
             self.allConveyorSprites.draw(self.screen)
@@ -69,7 +70,7 @@ class GameMain():
                     self.conveyor_render(self.screen, conveyor)
             for factory in self.factories:
                 self.factory_render(self.screen, assemblerimg, assemblerpng, bearimg, factory)
-                factory.step(pygame.key.get_pressed()[factory.button],self.screen)
+                factory.step(pygame.key.get_pressed()[factory.button], t)
                 if factory.button not in list(self.button_dict.keys()):
                     self.button_dict[factory.button] = factory
                 if factory in list(self.button_dict.values()):
@@ -118,7 +119,7 @@ class GameMain():
         if (x, y) in self.filledSpaces:
             return self.addFactory(last_x, last_y)
         else:
-            producer = Producer(self.getType(), self, assemblerimg,x, y, button = BUTTON_DICT_M[math.floor(random.random()*4)])
+            producer = Producer(self.getType(), self, assemblerimg,x, y, button = BUTTON_DICT_M[math.floor(random.random()*4)+1])
             self.factories.add(producer)
             return producer
         self.filledSpaces.append((x,y))
@@ -189,7 +190,7 @@ class GameMain():
                 for j in range(i):
                     if self.rhythms[i] == self.rhythms[j]:
                         duplicates = True
-        print(self.rhythms)
+        print("rhythms: "+str(self.rhythms))
 
 
 if __name__ == '__main__':
