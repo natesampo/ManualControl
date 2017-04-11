@@ -48,7 +48,7 @@ class Producer(pygame.sprite.Sprite):
             if beat:
                 progress = ((t*2-i)%8)/8.0
                 if progress>self.progress: self.progress = progress
-                if abs(t*2-i)/8<=.15: # on the beat
+                if abs(t*2-i)/8 <= .15 or abs(t*2-i)/8 >= .85: # on the beat
                     if button and not self.beatsHit[i]: # beat was hit for first time
                         self.score += 1
                         self.beatsHit[i] = 1
