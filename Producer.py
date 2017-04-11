@@ -55,4 +55,4 @@ class Producer(pygame.sprite.Sprite):
                         self.built = True
                         self.t = 0
                 else:
-                        self.beatsHit[i] = 0
+                    self.beatsHit[i] = 0

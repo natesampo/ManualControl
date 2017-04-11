@@ -80,7 +80,6 @@ class GameMain():
             # draws sprites onto the screen
             self.screen.fill((20, 20, 20))  # setting background color
             self.allConveyorSprites.draw(self.screen)
-            self.factories.draw(self.screen)
 
             for factory in self.factories.sprites():
                 for conveyor in factory.conveyors:
@@ -93,6 +92,7 @@ class GameMain():
                 if factory in list(self.button_dict.values()):
                     place = list(self.button_dict.values()).index(factory)
                     self.prod_render(self.screen, factory, place)
+            self.factories.draw(self.screen)
 
             #  displays Debug
             if self.displayDebug:
@@ -182,7 +182,7 @@ class GameMain():
                 factory.built = False
 
     def conveyor_render(self, screen, conveyor):
-        conveyor.update(self.scale)
+        conveyor.update(self.scale, screen)
 
     def addFactory(self, last_x = 0, last_y = 0):
         randx = random.random()-.5
