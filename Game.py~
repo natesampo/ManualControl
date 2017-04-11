@@ -13,9 +13,9 @@ myMusic = pygame.mixer.music
 im = Image.open('images/TeddyBear.jpg')
 im.thumbnail((64, 64), Image.ANTIALIAS)
 im.save('images/ThisGuy.jpg', "JPEG")
-assemblerpng = Image.open('images/factory_blue.png')
+assemblerpng = Image.open('images/factory_cyan.png')
 
-assemblerimg = pygame.image.load('images/factory_blue.png')
+assemblerimg = pygame.image.load('images/factory_cyan.png')
 bearimg = pygame.image.load('images/ThisGuy.jpg')
 
 class GameMain():
@@ -33,7 +33,7 @@ class GameMain():
         self.scale = 40000/self.x_view
         self.filledSpaces = [] # add coordinate tuples whenever a space if filled e.g. (x, y)
 
-        self.setRhythms(1) # 4 rhythms, each expressed as a array of 8 ones or zeros (for each 8th note beat)
+        self.setRhythms(3) # 4 rhythms, each expressed as a array of 8 ones or zeros (for each 8th note beat)
 
         # sprite groups so we can render everything all at once
         self.allConveyorSprites = pygame.sprite.Group()
@@ -58,8 +58,34 @@ class GameMain():
         self.timePassed = 0
         self.displayDebug = False
         self.beatAlternate = True
+        self.gamestart = False
         t = 0
-        while(1):
+
+        while not self.gamestart:
+            self.screen.fill((20, 20, 20))  # setting background color
+            font ="norasi"
+            font_size1 = 100
+            msg1 = "Manual Control"
+            msg_location1 = (60,100)
+
+            font_size2 = 30
+            msg2 = "PRESS ENTER TO ENJOY!"
+            msg_location2 = (230,300)
+
+            self.MsgRender(self.screen, font, font_size1, msg1, msg_location1,(255,255,255))
+            self.MsgRender(self.screen, font, font_size2, msg2, msg_location2,(255,255,255))
+
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RETURN:
+                        self.gamestart = True
+
+                if event.type == pygame.QUIT:
+                    pygame.display.quit()
+
+            pygame.display.flip()
+
+        while self.gamestart:
             self.scale = 40000/self.x_view
             self.x_view += 0.125
             self.y_view += 3/32
@@ -80,23 +106,28 @@ class GameMain():
             # draws sprites onto the screen
             self.screen.fill((20, 20, 20))  # setting background color
             self.allConveyorSprites.draw(self.screen)
-            self.factories.draw(self.screen)
 
             for factory in self.factories.sprites():
                 for conveyor in factory.conveyors:
                     self.conveyor_render(self.screen, conveyor)
             for factory in self.factories:
                 self.factory_render(self.screen, assemblerimg, assemblerpng, bearimg, factory)
-                factory.step(pygame.key.get_pressed()[factory.button], self.beatProgress%4)
+                factory.step(pygame.key.get_pressed()[factory.button], self.beatProgress%4-2)
                 if self.onScreen(factory.x, factory.y) and factory.button not in list(self.button_dict.keys()):
                     self.button_dict[factory.button] = factory
                 if factory in list(self.button_dict.values()):
                     place = list(self.button_dict.values()).index(factory)
                     self.prod_render(self.screen, factory, place)
+            self.factories.draw(self.screen)
 
             #  displays Debug
             if self.displayDebug:
                 self.renderDebug()
+
+    def MsgRender(self,screen,font,font_size,msg,msg_location,color):
+        myfont = pygame.font.SysFont(font, font_size, True)
+        label = myfont.render(msg, True, color)
+        screen.blit(label, msg_location)
 
     def checkEvents(self):
         for event in pygame.event.get():
@@ -152,17 +183,19 @@ class GameMain():
             self.songTime = (self.songTime + myMusic.get_pos())/2
             self.lastReportedPlayheadPosition = myMusic.get_pos()
 
-    def prod_render(self, screen, factory, place):
-        progress = 50*factory.progress
-        pygame.draw.rect(screen, (255, 255, 255), (32*place + 16, 32+progress, 16, 16), 0)
-        pygame.draw.rect(screen, (255, 255, 255), (32*place, 102, 48, 4), 0)
-        if factory.built and factory.t < 10:
-            s = pygame.Surface((WINDOW_WIDTH,WINDOW_HEIGHT))
-            s.set_alpha(128)
-            s.set_colorkey((0,0,0))
 
-            pygame.draw.circle(s, (255,255,255,128), (32*place + 24, int(40+progress)), int((5+factory.t)*3), 10)
-            screen.blit(s, (0,0))
+    def prod_render(self, screen, factory, place):
+        for i, prog in enumerate(factory.progress):
+            progress = 50*prog
+            pygame.draw.rect(screen, (255, 255, 255), (32*place + 16, 32+progress, 16, 16), 0)
+            pygame.draw.rect(screen, (255, 255, 255), (32*place, 102, 48, 4), 0)
+            if factory.built[i] and factory.t < 10:
+                s = pygame.Surface((WINDOW_WIDTH,WINDOW_HEIGHT))
+                s.set_alpha(128)
+                s.set_colorkey((0,0,0))
+                pygame.draw.circle(s, (255,255,255,128), (32*place + 24, int(40+progress)), int((5+factory.t)*3), 10)
+                screen.blit(s, (0,0))
+
 
     def factory_render(self, screen, assemberimg, assemblerpng, bearimg, factory):
         # Render inputs to factory
@@ -172,17 +205,17 @@ class GameMain():
         factory.rect.topleft  = (WINDOW_WIDTH/2 + self.scale*(factory.x-.5), WINDOW_HEIGHT/2 + self.scale*(factory.y-.5))
         #screen.blit(img, (WINDOW_WIDTH/2 + self.scale*(factory.x-.5), WINDOW_HEIGHT/2 + self.scale*(factory.y-.5)))
         # Render output of factory
-        if factory.built:
+        if sum(factory.built):
             if factory.t < 20:
                 factory.t += 0.5
                 img = pygame.transform.scale(bearimg, (int(self.scale/4), int(self.scale/4)))
                 screen.blit(img, (WINDOW_WIDTH/2 + self.scale*(factory.x - .125), WINDOW_HEIGHT/2 + self.scale*(factory.y - .125 - factory.t/100.0)))
             else:
                 factory.t = 0
-                factory.built = False
+                factory.built = [0]*sum(factory.rhythm)
 
     def conveyor_render(self, screen, conveyor):
-        conveyor.update(self.scale)
+        conveyor.update(self.scale, screen)
 
     def addFactory(self, last_x = 0, last_y = 0):
         randx = random.random()-.5
