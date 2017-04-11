@@ -25,7 +25,7 @@ class Producer(pygame.sprite.Sprite):
             for i in range(0, self.num_inputs):
                 producer = game.addFactory(self.x, self.y)
                 conveyor = Conveyor(producer, self, producer.x, producer.y,self.game)
-                self.game.allConveyorSprites.add(conveyor)
+                #self.game.allConveyorSprites.add(conveyor)
             self.num_inputs = 0
 
     def update(self):
@@ -39,7 +39,7 @@ class Producer(pygame.sprite.Sprite):
                 for i in range(0, self.num_inputs):
                     producer = self.game.addFactory(self.x, self.y)
                     conveyor = Conveyor(producer, self, producer.x, producer.y,self.game)
-                    self.game.allConveyorSprites.add(conveyor)
+                    #self.game.allConveyorSprites.add(conveyor)
                 self.num_inputs = 0
 
 	# check if a beat was hit

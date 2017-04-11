@@ -13,9 +13,9 @@ myMusic = pygame.mixer.music
 im = Image.open('images/TeddyBear.jpg')
 im.thumbnail((64, 64), Image.ANTIALIAS)
 im.save('images/ThisGuy.jpg', "JPEG")
-assemblerpng = Image.open('images/factory_blue.png')
+assemblerpng = Image.open('images/factory_cyan.png')
 
-assemblerimg = pygame.image.load('images/factory_blue.png')
+assemblerimg = pygame.image.load('images/factory_cyan.png')
 bearimg = pygame.image.load('images/ThisGuy.jpg')
 
 class GameMain():
