@@ -85,7 +85,7 @@ class GameMain():
             for factory in self.factories:
                 self.factory_render(self.screen, assemblerimg, assemblerpng, bearimg, factory)
                 factory.step(pygame.key.get_pressed()[factory.button], t)
-                if factory.button not in list(self.button_dict.keys()):
+                if self.onScreen(factory.x, factory.y) and factory.button not in list(self.button_dict.keys()):
                     self.button_dict[factory.button] = factory
                 if factory in list(self.button_dict.values()):
                     place = list(self.button_dict.values()).index(factory)
@@ -151,7 +151,13 @@ class GameMain():
         progress = 50*factory.progress
         pygame.draw.rect(screen, (255, 255, 255), (32*place + 16, 32+progress, 16, 16), 0)
         pygame.draw.rect(screen, (255, 255, 255), (32*place, 102, 48, 4), 0)
+        if factory.built and factory.t < 10:
+            s = pygame.Surface((WINDOW_WIDTH,WINDOW_HEIGHT))
+            s.set_alpha(128)
+            s.set_colorkey((0,0,0))
 
+            pygame.draw.circle(s, (255,255,255,128), (32*place + 24, int(40+progress)), int((5+factory.t)*3), 10)
+            screen.blit(s, (0,0))
 
     def factory_render(self, screen, assemberimg, assemblerpng, bearimg, factory):
         # Render inputs to factory
