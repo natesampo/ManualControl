@@ -13,9 +13,9 @@ myMusic = pygame.mixer.music
 im = Image.open('images/TeddyBear.jpg')
 im.thumbnail((64, 64), Image.ANTIALIAS)
 im.save('images/ThisGuy.jpg', "JPEG")
-assemblerpng = Image.open('images/Assembler.png')
+assemblerpng = Image.open('images/factory_blue.png')
 
-assemblerimg = pygame.image.load('images/Assembler.png')
+assemblerimg = pygame.image.load('images/factory_blue.png')
 bearimg = pygame.image.load('images/ThisGuy.jpg')
 
 class GameMain():
@@ -75,7 +75,7 @@ class GameMain():
             pygame.display.update()  # updates the display to show everything that has been drawn/blit
 
             # draws sprites onto the screen
-            self.screen.fill((160, 82, 45))  # setting background color
+            self.screen.fill((20, 20, 20))  # setting background color
             self.allConveyorSprites.draw(self.screen)
             self.factories.draw(self.screen)
 
