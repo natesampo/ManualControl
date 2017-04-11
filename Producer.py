@@ -56,6 +56,7 @@ class Producer(pygame.sprite.Sprite):
                         self.built = [0]*sum(self.rhythm)
                         self.built[j] = 1
                         self.t = 0
+                        self.game.score += 1
                 else:
                     self.beatsHit[i] = 0
                 j = j+1

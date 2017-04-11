@@ -27,13 +27,14 @@ class GameMain():
         self.screen = pygame.display.set_mode([width, height])
         self.x_view = 200
         self.y_view = self.x_view * 3/4
+        self.level = 1
+        self.score = 0
 
     def MainLoop(self):
         self.button_dict = {}
         self.scale = 40000/self.x_view
         self.filledSpaces = [] # add coordinate tuples whenever a space if filled e.g. (x, y)
-
-        self.setRhythms(1) # 4 rhythms, each expressed as a array of 8 ones or zeros (for each 8th note beat)
+        self.setRhythms(self.level) # 4 rhythms, each expressed as a array of 8 ones or zeros (for each 8th note beat)
 
         # sprite groups so we can render everything all at once
         self.allConveyorSprites = pygame.sprite.Group()
@@ -59,19 +60,24 @@ class GameMain():
         self.displayDebug = False
         self.beatAlternate = True
         self.gamestart = False
-        t = 0
 
         while not self.gamestart:
             self.screen.fill((20, 20, 20))  # setting background color
             font ="norasi"
             font_size1 = 100
-            msg1 = "Manual Control"
-            msg_location1 = (60,100)
-
             font_size2 = 30
-            msg2 = "PRESS ENTER TO ENJOY!"
-            msg_location2 = (230,300)
-
+            
+            if self.level == 1:
+                msg1 = "Manual Control"
+                msg2 = "PRESS ENTER TO ENJOY!"
+                msg_location1 = (40,100)
+                msg_location2 = (210,300)
+            else:
+                msg1 = "Level " + str(self.level)
+                msg2 = "PRESS ENTER TO CONTINUE!"
+                msg_location1 = (230,100)
+                msg_location2 = (170,300)
+            
             self.MsgRender(self.screen, font, font_size1, msg1, msg_location1,(255,255,255))
             self.MsgRender(self.screen, font, font_size2, msg2, msg_location2,(255,255,255))
 
@@ -90,6 +96,12 @@ class GameMain():
             self.x_view += 0.125
             self.y_view += 3/32
             button = False
+            if self.score >= self.level*500:
+                self.level += 1
+                self.x_view = 200
+                self.y_view = self.x_view * 3/4
+                self.MainLoop() #TODO: This is actually terrible
+                return
 
             # frameTimeDifference attribute keeps track of the time passed between this frame and the last
             self.frameTimeDifference = clock.tick(120)  #clock.tick also is limiting the frame rate to 60fps
@@ -97,9 +109,6 @@ class GameMain():
             self.checkEvents()
             self.checkFPS()
             self.trackSongPos()  # smooths out accuracy of song position
-
-            t += 1/160.0/60*135
-            t = t%4
 
             pygame.display.update()  # updates the display to show everything that has been drawn/blit
 
@@ -119,6 +128,16 @@ class GameMain():
                     place = list(self.button_dict.values()).index(factory)
                     self.prod_render(self.screen, factory, place)
             self.factories.draw(self.screen)
+
+            # Display score
+            if pygame.font:
+                font = pygame.font.Font(None, 40)
+                text1 = font.render("Score: %s" % self.score,1,(255,255,0))
+                text2 = font.render("Level: %s" % self.level,1,(255,255,0))
+                textpos1 = text1.get_rect(top=10, right = self.screen.get_width()-20)
+                textpos2 = text2.get_rect(top=50, right = self.screen.get_width()-20)
+                self.screen.blit(text1, textpos1)
+                self.screen.blit(text2, textpos2)
 
             #  displays Debug
             if self.displayDebug:
@@ -188,7 +207,7 @@ class GameMain():
         for i, prog in enumerate(factory.progress):
             progress = 50*prog
             pygame.draw.rect(screen, (255, 255, 255), (32*place + 16, 32+progress, 16, 16), 0)
-            pygame.draw.rect(screen, (255, 255, 255), (32*place, 102, 48, 4), 0)
+            pygame.draw.rect(screen, (255, 255, 255), (32*place, 82+16, 48, 4), 0)
             if factory.built[i] and factory.t < 10:
                 s = pygame.Surface((WINDOW_WIDTH,WINDOW_HEIGHT))
                 s.set_alpha(128)
@@ -216,6 +235,7 @@ class GameMain():
 
     def conveyor_render(self, screen, conveyor):
         conveyor.update(self.scale, screen)
+
 
     def addFactory(self, last_x = 0, last_y = 0):
         randx = random.random()-.5
@@ -266,19 +286,19 @@ class GameMain():
                     self.rhythms[i][int(r1*4)*2] = 1
                 elif difficulty-i <= 2:
                     self.rhythms[i][int(r1*8)] = 1
-                elif difficulty-i <= 3:
+                elif difficulty-i <= 5:
                     r1 = int(r1*4)*2
                     r2 = int(r2*3)*2
                     if r2>=r1: r2 += 1
                     self.rhythms[i][r1] = 1
                     self.rhythms[i][r2] = 1
-                elif difficulty-i <= 4:
+                elif difficulty-i <= 6:
                     r1 = int(r1*8)
                     r2 = int(r2*7)
                     if r2>=r1: r2 += 1
                     self.rhythms[i][r1] = 1
                     self.rhythms[i][r2] = 1
-                elif difficulty-i <= 5:
+                elif difficulty-i <= 9:
                     r1 = int(r1*4)*2
                     r2 = int(r2*3)*2
                     r3 = int(r3*2)*2

@@ -47,7 +47,6 @@ class Producer(pygame.sprite.Sprite):
         j = 0
         for i, beat in enumerate(self.rhythm):
             if beat:
-                j = j+1
                 progress = ((t*2-i)%8)/8.0
                 self.progress[j] = progress
                 if abs(t*2-i)/8 <= .15 or abs(t*2-i)/8 >= .85: # on the beat
@@ -59,3 +58,4 @@ class Producer(pygame.sprite.Sprite):
                         self.t = 0
                 else:
                     self.beatsHit[i] = 0
+                j = j+1
