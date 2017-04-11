@@ -58,8 +58,34 @@ class GameMain():
         self.timePassed = 0
         self.displayDebug = False
         self.beatAlternate = True
+        self.gamestart = False
         t = 0
-        while(1):
+
+        while not self.gamestart:
+            self.screen.fill((20, 20, 20))  # setting background color
+            font ="norasi"
+            font_size1 = 100
+            msg1 = "Manual Control"
+            msg_location1 = (60,100)
+
+            font_size2 = 30
+            msg2 = "PRESS ENTER TO ENJOY!"
+            msg_location2 = (230,300)
+
+            self.MsgRender(self.screen, font, font_size1, msg1, msg_location1,(255,255,255))
+            self.MsgRender(self.screen, font, font_size2, msg2, msg_location2,(255,255,255))
+
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RETURN:
+                        self.gamestart = True
+
+                if event.type == pygame.QUIT:
+                    pygame.display.quit()
+
+            pygame.display.flip()
+
+        while self.gamestart:
             self.scale = 40000/self.x_view
             self.x_view += 0.125
             self.y_view += 3/32
@@ -97,6 +123,11 @@ class GameMain():
             #  displays Debug
             if self.displayDebug:
                 self.renderDebug()
+
+    def MsgRender(self,screen,font,font_size,msg,msg_location,color):
+        myfont = pygame.font.SysFont(font, font_size, True)
+        label = myfont.render(msg, True, color)
+        screen.blit(label, msg_location)
 
     def checkEvents(self):
         for event in pygame.event.get():

@@ -31,7 +31,6 @@ class Conveyor(pygame.sprite.Sprite):
                 self.dir = 'Down'
                 newConveyor = Conveyor(self.begin_factory, self.end_factory, self.x, self.y - (0.125 * 4/3), self.game,self.dir)
                 #self.game.allConveyorSprites.add(newConveyor)
-
         elif abs(self.x - self.end_factory.x) > 0.25:
             if self.x - self.end_factory.x < 0:
                 self.dir = 'Right'
