@@ -96,7 +96,7 @@ class GameMain():
             self.x_view += 0.125
             self.y_view += 3/32
             button = False
-            if self.score >= self.level*500:
+            if self.score >= self.level*1000:
                 self.level += 1
                 self.x_view = 200
                 self.y_view = self.x_view * 3/4
@@ -251,7 +251,10 @@ class GameMain():
         if (x, y) in self.filledSpaces:
             return self.addFactory(last_x, last_y)
         else:
-            producer = Producer(self.getType(), self, assemblerimg,x, y, button = BUTTON_DICT_M[math.floor(random.random()*4)+1])
+            bmax = len(self.button_dict)+1
+            b = math.floor(random.random()*4)+1
+            if b > bmax: b = bmax
+            producer = Producer(self.getType(), self, assemblerimg, x, y, button=BUTTON_DICT_M[b])            
             self.factories.add(producer)
             return producer
         self.filledSpaces.append((x,y))

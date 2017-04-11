@@ -67,7 +67,7 @@ class GameMain():
             font_size1 = 100
             font_size2 = 30
             
-            if self.level == -1:
+            if self.level == 1:
                 msg1 = "Manual Control"
                 msg2 = "PRESS ENTER TO ENJOY!"
                 msg_location1 = (40,100)
@@ -251,7 +251,10 @@ class GameMain():
         if (x, y) in self.filledSpaces:
             return self.addFactory(last_x, last_y)
         else:
-            producer = Producer(self.getType(), self, assemblerimg,x, y, button = BUTTON_DICT_M[math.floor(random.random()*4)+1])
+            bmax = len(self.button_dict)+1
+            b = math.floor(random.random()*4)+1
+            if b > bmax: b = bmax
+            producer = Producer(self.getType(), self, assemblerimg, x, y, button=BUTTON_DICT_M[b])            
             self.factories.add(producer)
             return producer
         self.filledSpaces.append((x,y))
