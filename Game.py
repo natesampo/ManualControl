@@ -54,41 +54,30 @@ class GameMain():
         self.fps = 0
         self.timePassed = 0
         self.displayDebug = False
+        self.beatAlternate = True
         t = 0
         while(1):
-
-
             self.scale = 40000/self.x_view
             self.x_view += 0.125
             self.y_view += 3/32
             button = False
 
             # frameTimeDifference attribute keeps track of the time passed between this frame and the last
-            self.frameTimeDifference = clock.tick(60)  #clock.tick also is limiting the frame rate to 60fps
+            self.frameTimeDifference = clock.tick(120)  #clock.tick also is limiting the frame rate to 60fps
 
+            self.checkEvents()
             self.checkFPS()
             self.trackSongPos()  # smooths out accuracy of song position
 
-            clock.tick(160)
             t += 1/160.0/60*135
             t = t%4
 
-            pygame.display.update()
-            self.screen.fill((160, 82, 45))
+            pygame.display.update()  # updates the display to show everything that has been drawn/blit
+
+            # draws sprites onto the screen
+            self.screen.fill((160, 82, 45))  # setting background color
             self.allConveyorSprites.draw(self.screen)
             self.factories.draw(self.screen)
-            for event in pygame.event.get():
-                if (event.type is pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
-                    if self.screen.get_flags() & pygame.FULLSCREEN:
-                        pygame.display.set_mode([WINDOW_WIDTH, WINDOW_HEIGHT])
-                    else:
-                        pygame.display.set_mode([WINDOW_WIDTH, WINDOW_HEIGHT], pygame.FULLSCREEN | pygame.HWSURFACE)
-                if event.type is pygame.KEYDOWN and event.key == pygame.K_F3:
-                    self.displayDebug = not self.displayDebug
-
-                if event.type == pygame.QUIT:
-                    pygame.display.quit()
-                    sys.exit()
 
             for factory in self.factories.sprites():
                 for conveyor in factory.conveyors:
@@ -101,36 +90,55 @@ class GameMain():
                 if factory in list(self.button_dict.values()):
                     place = list(self.button_dict.values()).index(factory)
                     self.prod_render(self.screen, factory, place)
+
+            #  displays Debug
             if self.displayDebug:
                 self.renderDebug()
-            self.checkBeat()
+
+    def checkEvents(self):
+        for event in pygame.event.get():
+            if (event.type is pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+                if self.screen.get_flags() & pygame.FULLSCREEN:
+                    pygame.display.set_mode([WINDOW_WIDTH, WINDOW_HEIGHT])
+                else:
+                    pygame.display.set_mode([WINDOW_WIDTH, WINDOW_HEIGHT], pygame.FULLSCREEN | pygame.HWSURFACE)
+            if event.type is pygame.KEYDOWN and event.key == pygame.K_F3:
+                self.displayDebug = not self.displayDebug
+
+            if event.type == pygame.QUIT:
+                pygame.display.quit()
+                sys.exit()
+
+
     def checkFPS(self):
         self.frameCounter+=1
         self.timePassed += self.frameTimeDifference
         if self.timePassed >= 1000:
-            self.fps = self.frameCounter
+            self.fps = int(self.frameCounter/(self.timePassed/1000))
             self.frameCounter = 0
             self.timePassed = 0
 
     def renderDebug(self):
         if pygame.font:
-            font = pygame.font.Font(None, 36)
+            font = pygame.font.Font(None, 24)
             text = font.render("fps: %s" % self.fps,1,(0,0,0))
-            textpos = text.get_rect(top=100, centerx = self.screen.get_width()/2)
+            textpos = text.get_rect(top=10, right = self.screen.get_width()-10)
             self.screen.blit(text, textpos)
+            self.checkBeat()
 
     def checkBeat(self):
-        if self.songTime/msPB - int(self.songTime/msPB) < 0.04:
+        if self.songTime/msPB - int(self.songTime/msPB) < .01:
             self.renderTeddy = True
+            self.beatAlternate = not self.beatAlternate
         if self.renderTeddy:
             self.counter +=1
-            if self.counter==5:
+            if self.counter==10:
                 self.counter = 0
                 self.renderTeddy = False
-            for factory in self.factories:
-                img = pygame.transform.scale(bearimg, (int(self.scale/4), int(self.scale/4)))
-                self.screen.blit(img, (WINDOW_WIDTH/2 + self.scale*(factory.x - .125), WINDOW_HEIGHT/2 + self.scale*(factory.y - .125 - factory.t/100.0)))
-
+                if self.beatAlternate:
+                    pygame.draw.rect(self.screen,(255,61,61),(self.screen.get_width()-50,50,30,30),0)
+                else:
+                    pygame.draw.rect(self.screen,(255,61,61),(self.screen.get_width()-100,50,30,30),0)
 
     def trackSongPos(self):
         self.songTime += self.frameTimeDifference
@@ -162,11 +170,8 @@ class GameMain():
                 factory.t = 0
                 factory.built = False
 
-
     def conveyor_render(self, screen, conveyor):
         conveyor.update(self.scale)
-        #pygame.draw.rect(screen, (0,0,0), (WINDOW_WIDTH/2 + self.scale*conveyor.x - (self.scale/100)*16, WINDOW_HEIGHT/2 + self.scale*conveyor.y - (self.scale/100)*16, (self.scale/100)*32, (self.scale/100)*32), 0)
-
 
     def addFactory(self, last_x = 0, last_y = 0):
         randx = random.random()-.5
