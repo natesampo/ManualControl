@@ -87,7 +87,7 @@ class GameMain():
                     self.conveyor_render(self.screen, conveyor)
             for factory in self.factories:
                 self.factory_render(self.screen, assemblerimg, assemblerpng, bearimg, factory)
-                factory.step(pygame.key.get_pressed()[factory.button], t)
+                factory.step(pygame.key.get_pressed()[factory.button], self.beatProgress%4-2)
                 if self.onScreen(factory.x, factory.y) and factory.button not in list(self.button_dict.keys()):
                     self.button_dict[factory.button] = factory
                 if factory in list(self.button_dict.values()):
