@@ -48,6 +48,9 @@ class GameMain():
         myMusic.play(-1)
         self.songTime = 0  # how far along in the song the system thinks we are in ms
         self.lastReportedPlayheadPosition = 0  # the last reported song position from the mixer
+        self.beatStep = 0
+        self.beatProgress = 0  # number of beats that have passed
+        self.beatPos = 0  # position inside our current beat
         self.renderTeddy = False
         self.counter= 0
         self.frameCounter = 0
@@ -103,19 +106,19 @@ class GameMain():
             # draws sprites onto the screen
             self.screen.fill((20, 20, 20))  # setting background color
             self.allConveyorSprites.draw(self.screen)
-            self.factories.draw(self.screen)
 
             for factory in self.factories.sprites():
                 for conveyor in factory.conveyors:
                     self.conveyor_render(self.screen, conveyor)
             for factory in self.factories:
                 self.factory_render(self.screen, assemblerimg, assemblerpng, bearimg, factory)
-                factory.step(pygame.key.get_pressed()[factory.button], t)
+                factory.step(pygame.key.get_pressed()[factory.button], self.beatProgress%4-2)
                 if self.onScreen(factory.x, factory.y) and factory.button not in list(self.button_dict.keys()):
                     self.button_dict[factory.button] = factory
                 if factory in list(self.button_dict.values()):
                     place = list(self.button_dict.values()).index(factory)
                     self.prod_render(self.screen, factory, place)
+            self.factories.draw(self.screen)
 
             #  displays Debug
             if self.displayDebug:
@@ -152,26 +155,28 @@ class GameMain():
     def renderDebug(self):
         if pygame.font:
             font = pygame.font.Font(None, 24)
-            text = font.render("fps: %s" % self.fps,1,(0,0,0))
+            text = font.render("fps: %s" % self.fps,1,(255,255,0))
             textpos = text.get_rect(top=10, right = self.screen.get_width()-10)
             self.screen.blit(text, textpos)
             self.checkBeat()
 
     def checkBeat(self):
-        if self.songTime/msPB - int(self.songTime/msPB) < .01:
+        if self.beatPos < .05:  # we are in the beginning of the beat
             self.renderTeddy = True
-            self.beatAlternate = not self.beatAlternate
         if self.renderTeddy:
-            self.counter +=1
-            if self.counter==10:
+            if self.counter < 10:
+                self.counter +=1
+                pygame.draw.rect(self.screen,(255,61,61),(self.screen.get_width()-50,50,30,30),0)
+            else:
                 self.counter = 0
                 self.renderTeddy = False
-                if self.beatAlternate:
-                    pygame.draw.rect(self.screen,(255,61,61),(self.screen.get_width()-50,50,30,30),0)
-                else:
-                    pygame.draw.rect(self.screen,(255,61,61),(self.screen.get_width()-100,50,30,30),0)
+
 
     def trackSongPos(self):
+        self.beatStep = self.frameTimeDifference*BPms
+        self.beatProgress += self.beatStep
+        self.beatPos = self.beatProgress - int(self.beatProgress)
+
         self.songTime += self.frameTimeDifference
         if(not myMusic.get_pos()==self.lastReportedPlayheadPosition):
             # sets songTime to an average of itself and the position the mixer says the music is
@@ -208,7 +213,7 @@ class GameMain():
                 factory.built = False
 
     def conveyor_render(self, screen, conveyor):
-        conveyor.update(self.scale)
+        conveyor.update(self.scale, screen)
 
     def addFactory(self, last_x = 0, last_y = 0):
         randx = random.random()-.5
