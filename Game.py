@@ -29,7 +29,7 @@ class GameMain():
         self.y_view = self.x_view * 3/4
         self.level = 1
         self.score = 0
-        self.health = 100
+        self.health = 0
         self.quota = 0
 
     def MainLoop(self):
@@ -38,7 +38,7 @@ class GameMain():
         self.filledSpaces = [] # add coordinate tuples whenever a space if filled e.g. (x, y)
         self.setRhythms(self.level) # 4 rhythms, each expressed as a array of 8 ones or zeros (for each 8th note beat)
         self.health += 100
-        self.quota = self.score+100*sum(map(lambda r: sum(r), self.rhythms))
+        self.quota = self.score+100*sum(map(lambda r: sum(r), self.rhythms)) - 200
 
         # sprite groups so we can render everything all at once
         self.allConveyorSprites = pygame.sprite.Group()
@@ -148,9 +148,10 @@ class GameMain():
                     self.conveyor_render(self.screen, conveyor)
             for factory in self.factories:
                 self.factory_render(self.screen, assemblerimg, assemblerpng, bearimg, factory)
-                factory.step(pygame.key.get_pressed()[factory.button], self.beatProgress%4-2)
-                if self.onScreen(factory.x, factory.y) and factory.button not in list(self.button_dict.keys()):
-                    self.button_dict[factory.button] = factory
+                if self.onScreen(factory.x, factory.y):
+                    factory.step(pygame.key.get_pressed()[factory.button], self.beatProgress%4-2)
+                    if factory.button not in list(self.button_dict.keys()):
+                        self.button_dict[factory.button] = factory
                 if factory in list(self.button_dict.values()):
                     place = list(self.button_dict.values()).index(factory)
                     self.prod_render(self.screen, factory, place)
@@ -303,7 +304,7 @@ class GameMain():
 
 
     def onScreen(self, x, y):
-        return abs(x)<=WINDOW_WIDTH/self.scale and abs(y)<=WINDOW_HEIGHT/self.scale
+        return abs(x)<=WINDOW_WIDTH/self.scale/2 and abs(y)<=WINDOW_HEIGHT/self.scale/2
 
 
     def setRhythms(self, difficulty):
