@@ -21,6 +21,8 @@ class Producer(pygame.sprite.Sprite):
         self.rhythm = game.rhythms[BUTTON_DICT_TWO[self.button]-1]
         self.built = [0]*sum(self.rhythm)
         self.progress = [0]*sum(self.rhythm)
+        self.keyDown = 0
+        self.onBeat = [0]*sum(self.rhythm)
         if self.game.onScreen(self.x, self.y):
             for i in range(0, self.num_inputs):
                 producer = game.addFactory(self.x, self.y)
@@ -49,14 +51,26 @@ class Producer(pygame.sprite.Sprite):
             if beat:
                 progress = ((t*2-i)%8)/8.0
                 self.progress[j] = progress
-                if abs(t*2-i)/8 <= .15 or abs(t*2-i)/8 >= .85: # on the beat
-                    if button and not self.beatsHit[i]: # beat was hit for first time
+                if abs(t*2-i)/8 <= .1 or abs(t*2-i)/8 >= .9: # on the beat
+                    self.onBeat[j] = 1
+                    if button and not self.beatsHit[i] and not self.keyDown: # beat was hit for first time
                         self.score += 1
                         self.beatsHit[i] = 1
                         self.built = [0]*sum(self.rhythm)
                         self.built[j] = 1
                         self.t = 0
                         self.game.score += 1
+                        self.keyDown = 1
+                    if not button:
+                        self.keyDown = 0
                 else:
+                    if not self.beatsHit[i] and self.onBeat[j]: # didn't hit the beat
+                        self.game.health -= 1
                     self.beatsHit[i] = 0
+                    self.onBeat[j] = 0
+                    if button and not self.keyDown: # pressed at wrong time
+                        self.game.health -= 1
+                        self.keyDown = 1
+                    if not button:
+                        self.keyDown = 0
                 j = j+1

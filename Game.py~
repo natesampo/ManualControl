@@ -29,12 +29,16 @@ class GameMain():
         self.y_view = self.x_view * 3/4
         self.level = 1
         self.score = 0
+        self.health = 100
+        self.quota = 0
 
     def MainLoop(self):
         self.button_dict = {}
         self.scale = 40000/self.x_view
         self.filledSpaces = [] # add coordinate tuples whenever a space if filled e.g. (x, y)
         self.setRhythms(self.level) # 4 rhythms, each expressed as a array of 8 ones or zeros (for each 8th note beat)
+        self.health += 100
+        self.quota = self.score+100*sum(map(lambda r: sum(r), self.rhythms))
 
         # sprite groups so we can render everything all at once
         self.allConveyorSprites = pygame.sprite.Group()
@@ -66,8 +70,18 @@ class GameMain():
             font ="norasi"
             font_size1 = 100
             font_size2 = 30
-            
-            if self.level == 1:
+            if self.health <= 0:
+                msg1 = "Game Over"
+                msg2 = "PRESS ENTER TO TRY AGAIN"
+                msg3 = "Final Score: " + str(self.score)
+                msg4 = "Final Level: " + str(self.level)
+                msg_location1 = (120,100)
+                msg_location2 = (165,300)
+                msg_location3 = (270,370)
+                msg_location4 = (270,420)
+                self.MsgRender(self.screen, font, font_size2, msg3, msg_location3,(255,255,255))
+                self.MsgRender(self.screen, font, font_size2, msg4, msg_location4,(255,255,255))
+            elif self.level == 1:
                 msg1 = "Manual Control"
                 msg2 = "PRESS ENTER TO ENJOY!"
                 msg_location1 = (40,100)
@@ -85,6 +99,11 @@ class GameMain():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
                         self.gamestart = True
+                        if self.health <= 0:
+                            self.health = 200
+                            self.score = 0
+                            self.quota = 400
+                            self.level = 1
 
                 if event.type == pygame.QUIT:
                     pygame.display.quit()
@@ -96,8 +115,16 @@ class GameMain():
             self.x_view += 0.125
             self.y_view += 3/32
             button = False
-            if self.score >= self.level*500:
+            if self.health <= 0: # game over
+                print("died")
+                self.health = 0
+                self.x_view = 200
+                self.y_view = self.x_view * 3/4
+                self.MainLoop()
+                return
+            if self.score >= self.quota:
                 self.level += 1
+                self.score += self.health
                 self.x_view = 200
                 self.y_view = self.x_view * 3/4
                 self.MainLoop() #TODO: This is actually terrible
@@ -134,10 +161,13 @@ class GameMain():
                 font = pygame.font.Font(None, 40)
                 text1 = font.render("Score: %s" % self.score,1,(255,255,0))
                 text2 = font.render("Level: %s" % self.level,1,(255,255,0))
+                text3 = font.render("Health: %s" % self.health,1,(255,255,0))
                 textpos1 = text1.get_rect(top=10, right = self.screen.get_width()-20)
                 textpos2 = text2.get_rect(top=50, right = self.screen.get_width()-20)
+                textpos3 = text3.get_rect(top=90, right = self.screen.get_width()-20)
                 self.screen.blit(text1, textpos1)
                 self.screen.blit(text2, textpos2)
+                self.screen.blit(text3, textpos3)
 
             #  displays Debug
             if self.displayDebug:
@@ -205,9 +235,9 @@ class GameMain():
 
     def prod_render(self, screen, factory, place):
         for i, prog in enumerate(factory.progress):
-            progress = 50*prog
+            progress = 150*prog
             pygame.draw.rect(screen, (255, 255, 255), (32*place + 16, 32+progress, 16, 16), 0)
-            pygame.draw.rect(screen, (255, 255, 255), (32*place, 82+16, 48, 4), 0)
+            pygame.draw.rect(screen, (255, 255, 255), (32*place, 150+32+16, 48, 4), 0)
             if factory.built[i] and factory.t < 10:
                 s = pygame.Surface((WINDOW_WIDTH,WINDOW_HEIGHT))
                 s.set_alpha(128)

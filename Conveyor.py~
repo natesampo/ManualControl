@@ -42,7 +42,7 @@ class Conveyor(pygame.sprite.Sprite):
                 #self.game.allConveyorSprites.add(newConveyor)
 
     def update(self, scale, screen):
-        width = max(scale/200, .5)
+        width = max(scale/200, .33)
         if self.dir == 'Right' or self.dir == 'Left':
             pygame.draw.rect(screen, (76, 174, 255), (WINDOW_WIDTH/2 + self.x * scale, WINDOW_HEIGHT/2 + self.y * scale, 35 * width, 6 * width), 0)
             pygame.draw.rect(screen, (76, 174, 255), (WINDOW_WIDTH/2 + self.x * scale, 35 * scale/200 + WINDOW_HEIGHT/2 + self.y * scale, 35 * width, 6 * width), 0)
