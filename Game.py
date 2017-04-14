@@ -1,9 +1,3 @@
-
-import pygame_sdl2
-pygame_sdl2.import_as_pygame()
-
-
-
 import pygame
 from PIL import Image
 import os, sys, math, random
@@ -12,8 +6,6 @@ from Conveyor import Conveyor
 from Game_Constants import *
 import math
 import random
-#import pygame_sdl2
-#pygame_sdl2.import_as_pygame()
 
 clock = pygame.time.Clock()
 myMusic = pygame.mixer.music
@@ -74,57 +66,50 @@ class GameMain():
         self.beatAlternate = True
         self.gamestart = False
 
-        while not self.gamestart:
-            if not self.sleeping:
-                self.screen.fill((20, 20, 20))  # setting background color
-                font ="norasi"
-                font_size1 = 100
-                font_size2 = 30
-                if self.health <= 0:
-                    msg1 = "Game Over"
-                    msg2 = "PRESS ENTER TO TRY AGAIN"
-                    msg3 = "Final Score: " + str(self.score)
-                    msg4 = "Final Level: " + str(self.level)
-                    msg_location1 = (120,100)
-                    msg_location2 = (165,300)
-                    msg_location3 = (270,370)
-                    msg_location4 = (270,420)
-                    self.MsgRender(self.screen, font, font_size2, msg3, msg_location3,(255,255,255))
-                    self.MsgRender(self.screen, font, font_size2, msg4, msg_location4,(255,255,255))
-                elif self.level == 1:
-                    msg1 = "Manual Control"
-                    msg2 = "PRESS ENTER TO ENJOY!"
-                    msg_location1 = (40,100)
-                    msg_location2 = (210,300)
-                else:
-                    msg1 = "Level " + str(self.level)
-                    msg2 = "PRESS ENTER TO CONTINUE!"
-                    msg_location1 = (230,100)
-                    msg_location2 = (170,300)
+        while not self.gamestart: 
+            self.screen.fill((20, 20, 20))  # setting background color
+            font ="norasi"
+            font_size1 = 100
+            font_size2 = 30
+            if self.health <= 0:
+                msg1 = "Game Over"
+                msg2 = "PRESS ENTER TO TRY AGAIN"
+                msg3 = "Final Score: " + str(self.score)
+                msg4 = "Final Level: " + str(self.level)
+                msg_location1 = (120,100)
+                msg_location2 = (165,300)
+                msg_location3 = (270,370)
+                msg_location4 = (270,420)
+                self.MsgRender(self.screen, font, font_size2, msg3, msg_location3,(255,255,255))
+                self.MsgRender(self.screen, font, font_size2, msg4, msg_location4,(255,255,255))
+            elif self.level == 1:
+                msg1 = "Manual Control"
+                msg2 = "PRESS ENTER TO ENJOY!"
+                msg_location1 = (40,100)
+                msg_location2 = (210,300)
+            else:
+                msg1 = "Level " + str(self.level)
+                msg2 = "PRESS ENTER TO CONTINUE!"
+                msg_location1 = (230,100)
+                msg_location2 = (170,300)
 
-                self.MsgRender(self.screen, font, font_size1, msg1, msg_location1,(255,255,255))
-                self.MsgRender(self.screen, font, font_size2, msg2, msg_location2,(255,255,255))
+            self.MsgRender(self.screen, font, font_size1, msg1, msg_location1,(255,255,255))
+            self.MsgRender(self.screen, font, font_size2, msg2, msg_location2,(255,255,255))
 
-                for event in pygame.event.get():
-                    if event.type == pygame.KEYDOWN:
-                        if event.key == pygame.K_RETURN:
-                            self.gamestart = True
-                            if self.health <= 0:
-                                self.health = 200
-                                self.score = 0
-                                self.quota = 400
-                                self.level = 1
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RETURN:
+                        self.gamestart = True
+                        if self.health <= 0:
+                            self.health = 200
+                            self.score = 0
+                            self.quota = 400
+                            self.level = 1
 
-                    if event.type == pygame.QUIT:
-                        pygame.display.quit()
-                    if event.type == pygame.APP_WILLENTERBACKGROUND:
-                        sleeping = True
-                    if event.type == pygame.APP_DIDENTERFOREGROUND:
-                        sleeping = False
-                        screen = pygame.display.set_mode(( 1280, 720))
+                if event.type == pygame.QUIT:
+                    pygame.display.quit()
 
-
-                pygame.display.flip()
+            pygame.display.flip()
 
         while self.gamestart:
             self.scale = 40000/self.x_view
@@ -208,12 +193,6 @@ class GameMain():
             if event.type == pygame.QUIT:
                 pygame.display.quit()
                 sys.exit()
-            if event.type == pygame.APP_WILLENTERBACKGROUND:
-                sleeping = True
-            if event.type == pygame.APP_DIDENTERFOREGROUND:
-                sleeping = False
-                screen = pygame.display.set_mode(( 1280, 720))
-
 
     def checkFPS(self):
         self.frameCounter+=1
