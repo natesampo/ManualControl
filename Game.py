@@ -127,7 +127,7 @@ class GameMain():
                 pygame.display.flip()
 
         while self.gamestart:
-<<<<<<< HEAD
+
             if not self.sleeping:
                 self.scale = 40000/self.x_view
                 self.x_view += 0.125
@@ -190,70 +190,6 @@ class GameMain():
                 #  displays Debug
                 if self.displayDebug:
                     self.renderDebug()
-=======
-            self.scale = 40000/self.x_view
-            self.x_view += 0.125
-            self.y_view += 3/32
-            button = False
-            if self.health <= 0: # game over
-                print("died")
-                self.health = -1000
-                self.x_view = 200
-                self.y_view = self.x_view * 3/4
-                self.MainLoop()
-                return
-            if self.score >= self.quota:
-                self.level += 1
-                self.score += self.health
-                self.x_view = 200
-                self.y_view = self.x_view * 3/4
-                self.MainLoop() #TODO: This is actually terrible
-                return
-
-            # frameTimeDifference attribute keeps track of the time passed between this frame and the last
-            self.frameTimeDifference = clock.tick(120)  #clock.tick also is limiting the frame rate to 60fps
-
-            self.checkEvents()
-            self.checkFPS()
-            self.trackSongPos()  # smooths out accuracy of song position
-
-            pygame.display.update()  # updates the display to show everything that has been drawn/blit
-
-            # draws sprites onto the screen
-            self.screen.fill((20, 20, 20))  # setting background color
-            self.allConveyorSprites.draw(self.screen)
-
-            for factory in self.factories.sprites():
-                for conveyor in factory.conveyors:
-                    self.conveyor_render(self.screen, conveyor)
-            for factory in self.factories:
-                self.factory_render(self.screen, assemblerimg, assemblerpng, bearimg, factory)
-                if self.onScreen(factory.x, factory.y):
-                    factory.step(pygame.key.get_pressed()[factory.button], self.beatProgress%4-2)
-                    if factory.button not in list(self.button_dict.keys()):
-                        self.button_dict[factory.button] = factory
-                if factory in list(self.button_dict.values()):
-                    place = list(self.button_dict.values()).index(factory)
-                    self.prod_render(self.screen, factory, place)
-            self.factories.draw(self.screen)
-
-            # Display score
-            if pygame.font:
-                font = pygame.font.Font(None, 40)
-                text1 = font.render("Score: %s" % self.score,1,(255,255,0))
-                text2 = font.render("Level: %s" % self.level,1,(255,255,0))
-                text3 = font.render("Health: %s" % self.health,1,(255,255,0))
-                textpos1 = text1.get_rect(top=10, right = self.screen.get_width()-20)
-                textpos2 = text2.get_rect(top=50, right = self.screen.get_width()-20)
-                textpos3 = text3.get_rect(top=90, right = self.screen.get_width()-20)
-                self.screen.blit(text1, textpos1)
-                self.screen.blit(text2, textpos2)
-                self.screen.blit(text3, textpos3)
-
-            #  displays Debug
-            if self.displayDebug:
-                self.renderDebug()
->>>>>>> bb8498741b2dc4cce54509a71710f0d2a829cf8e
 
     def MsgRender(self,screen,font,font_size,msg,msg_location,color):
         myfont = pygame.font.SysFont(font, font_size, True)
