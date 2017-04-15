@@ -1,10 +1,10 @@
-
-import pygame_sdl2
-pygame_sdl2.import_as_pygame()
-
-
-
 import pygame
+
+try:
+    import android
+except ImportError:
+    android = None
+
 from PIL import Image
 import os, sys, math, random
 from Producer import Producer
@@ -12,8 +12,6 @@ from Conveyor import Conveyor
 from Game_Constants import *
 import math
 import random
-#import pygame_sdl2
-#pygame_sdl2.import_as_pygame()
 
 clock = pygame.time.Clock()
 myMusic = pygame.mixer.music
@@ -105,25 +103,7 @@ class GameMain():
                 self.MsgRender(self.screen, font, font_size1, msg1, msg_location1,(255,255,255))
                 self.MsgRender(self.screen, font, font_size2, msg2, msg_location2,(255,255,255))
 
-                for event in pygame.event.get():
-                    if event.type == pygame.KEYDOWN:
-                        if event.key == pygame.K_RETURN:
-                            self.gamestart = True
-                            if self.health <= 0:
-                                self.health = 200
-                                self.score = 0
-                                self.quota = 400
-                                self.level = 1
-
-                    if event.type == pygame.QUIT:
-                        pygame.display.quit()
-                    if event.type == pygame.APP_WILLENTERBACKGROUND:
-                        sleeping = True
-                    if event.type == pygame.APP_DIDENTERFOREGROUND:
-                        sleeping = False
-                        screen = pygame.display.set_mode(( 1280, 720))
-
-
+                self.checkEvents()
                 pygame.display.flip()
 
         while self.gamestart:
@@ -208,12 +188,14 @@ class GameMain():
             if event.type == pygame.QUIT:
                 pygame.display.quit()
                 sys.exit()
-            if event.type == pygame.APP_WILLENTERBACKGROUND:
-                sleeping = True
-            if event.type == pygame.APP_DIDENTERFOREGROUND:
-                sleeping = False
                 screen = pygame.display.set_mode(( 1280, 720))
-
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN and self.gamestart == False:
+                self.gamestart = True
+                if self.health <= 0:
+                    self.health = 200
+                    self.score = 0
+                    self.quota = 400
+                    self.level = 1
 
     def checkFPS(self):
         self.frameCounter+=1
@@ -379,8 +361,9 @@ class GameMain():
                         duplicates = True
         print("rhythms: "+str(self.rhythms))
 
-
-if __name__ == '__main__':
+def main():
     sys.setrecursionlimit(5000)
     MainWindow = GameMain()
     MainWindow.MainLoop()
+if __name__ == '__main__':
+    main()
