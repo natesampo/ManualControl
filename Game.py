@@ -1,4 +1,10 @@
 import pygame
+
+try:
+    import android
+except ImportError:
+    android = None
+
 from PIL import Image
 import os, sys, math, random
 from Producer import Producer
@@ -31,6 +37,7 @@ class GameMain():
         self.score = 0
         self.health = 0
         self.quota = 0
+        self.sleeping = False  # checks if the app is sleeping
 
     def MainLoop(self):
         self.button_dict = {}
@@ -66,113 +73,102 @@ class GameMain():
         self.gamestart = False
 
         while not self.gamestart:
-            self.screen.fill((20, 20, 20))  # setting background color
-            font ="norasi"
-            font_size1 = 100
-            font_size2 = 30
-            if self.health <= 0:
-                msg1 = "Game Over"
-                msg2 = "PRESS ENTER TO TRY AGAIN"
-                msg3 = "Final Score: " + str(self.score)
-                msg4 = "Final Level: " + str(self.level)
-                msg_location1 = (120,100)
-                msg_location2 = (165,300)
-                msg_location3 = (270,370)
-                msg_location4 = (270,420)
-                self.MsgRender(self.screen, font, font_size2, msg3, msg_location3,(255,255,255))
-                self.MsgRender(self.screen, font, font_size2, msg4, msg_location4,(255,255,255))
-            elif self.level == 1:
-                msg1 = "Manual Control"
-                msg2 = "PRESS ENTER TO ENJOY!"
-                msg_location1 = (40,100)
-                msg_location2 = (210,300)
-            else:
-                msg1 = "Level " + str(self.level)
-                msg2 = "PRESS ENTER TO CONTINUE!"
-                msg_location1 = (230,100)
-                msg_location2 = (170,300)
-            
-            self.MsgRender(self.screen, font, font_size1, msg1, msg_location1,(255,255,255))
-            self.MsgRender(self.screen, font, font_size2, msg2, msg_location2,(255,255,255))
+            if not self.sleeping:
+                self.screen.fill((20, 20, 20))  # setting background color
+                font ="norasi"
+                font_size1 = 100
+                font_size2 = 30
+                if self.health <= 0:
+                    msg1 = "Game Over"
+                    msg2 = "PRESS ENTER TO TRY AGAIN"
+                    msg3 = "Final Score: " + str(self.score)
+                    msg4 = "Final Level: " + str(self.level)
+                    msg_location1 = (120,100)
+                    msg_location2 = (165,300)
+                    msg_location3 = (270,370)
+                    msg_location4 = (270,420)
+                    self.MsgRender(self.screen, font, font_size2, msg3, msg_location3,(255,255,255))
+                    self.MsgRender(self.screen, font, font_size2, msg4, msg_location4,(255,255,255))
+                elif self.level == 1:
+                    msg1 = "Manual Control"
+                    msg2 = "PRESS ENTER TO ENJOY!"
+                    msg_location1 = (40,100)
+                    msg_location2 = (210,300)
+                else:
+                    msg1 = "Level " + str(self.level)
+                    msg2 = "PRESS ENTER TO CONTINUE!"
+                    msg_location1 = (230,100)
+                    msg_location2 = (170,300)
 
-            for event in pygame.event.get():
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_RETURN:
-                        self.gamestart = True
-                        if self.health <= 0:
-                            self.health = 200
-                            self.score = 0
-                            self.quota = 400
-                            self.level = 1
+                self.MsgRender(self.screen, font, font_size1, msg1, msg_location1,(255,255,255))
+                self.MsgRender(self.screen, font, font_size2, msg2, msg_location2,(255,255,255))
 
-                if event.type == pygame.QUIT:
-                    pygame.display.quit()
-
-            pygame.display.flip()
+                self.checkEvents()
+                pygame.display.flip()
 
         while self.gamestart:
-            self.scale = 40000/self.x_view
-            self.x_view += 0.125
-            self.y_view += 3/32
-            button = False
-            if self.health <= 0: # game over
-                print("died")
-                self.health = -1000
-                self.x_view = 200
-                self.y_view = self.x_view * 3/4
-                self.MainLoop()
-                return
-            if self.score >= self.quota:
-                self.level += 1
-                self.score += self.health
-                self.x_view = 200
-                self.y_view = self.x_view * 3/4
-                self.MainLoop() #TODO: This is actually terrible
-                return
+            if not self.sleeping:
+                self.scale = 40000/self.x_view
+                self.x_view += 0.125
+                self.y_view += 3/32
+                button = False
+                if self.health <= 0: # game over
+                    print("died")
+                    self.health = -1000
+                    self.x_view = 200
+                    self.y_view = self.x_view * 3/4
+                    self.MainLoop()
+                    return
+                if self.score >= self.quota:
+                    self.level += 1
+                    self.score += self.health
+                    self.x_view = 200
+                    self.y_view = self.x_view * 3/4
+                    self.MainLoop() #TODO: This is actually terrible
+                    return
 
-            # frameTimeDifference attribute keeps track of the time passed between this frame and the last
-            self.frameTimeDifference = clock.tick(120)  #clock.tick also is limiting the frame rate to 60fps
+                # frameTimeDifference attribute keeps track of the time passed between this frame and the last
+                self.frameTimeDifference = clock.tick(120)  #clock.tick also is limiting the frame rate to 60fps
 
-            self.checkEvents()
-            self.checkFPS()
-            self.trackSongPos()  # smooths out accuracy of song position
+                self.checkEvents()
+                self.checkFPS()
+                self.trackSongPos()  # smooths out accuracy of song position
 
-            pygame.display.update()  # updates the display to show everything that has been drawn/blit
+                pygame.display.update()  # updates the display to show everything that has been drawn/blit
 
-            # draws sprites onto the screen
-            self.screen.fill((20, 20, 20))  # setting background color
-            self.allConveyorSprites.draw(self.screen)
+                # draws sprites onto the screen
+                self.screen.fill((20, 20, 20))  # setting background color
+                self.allConveyorSprites.draw(self.screen)
 
-            for factory in self.factories.sprites():
-                for conveyor in factory.conveyors:
-                    self.conveyor_render(self.screen, conveyor)
-            for factory in self.factories:
-                self.factory_render(self.screen, assemblerimg, assemblerpng, bearimg, factory)
-                if self.onScreen(factory.x, factory.y):
+                for factory in self.factories.sprites():
+                    for conveyor in factory.conveyors:
+                        self.conveyor_render(self.screen, conveyor)
+                for factory in self.factories:
+                    self.factory_render(self.screen, assemblerimg, assemblerpng, bearimg, factory)
                     factory.step(pygame.key.get_pressed()[factory.button], self.beatProgress%4-2)
-                    if factory.button not in list(self.button_dict.keys()):
+                    if self.onScreen(factory.x, factory.y) and factory.button not in list(self.button_dict.keys()):
                         self.button_dict[factory.button] = factory
-                if factory in list(self.button_dict.values()):
-                    place = list(self.button_dict.values()).index(factory)
-                    self.prod_render(self.screen, factory, place)
-            self.factories.draw(self.screen)
+                    if factory in list(self.button_dict.values()):
+                        place = list(self.button_dict.values()).index(factory)
+                        self.prod_render(self.screen, factory, place)
+                self.factories.draw(self.screen)
 
-            # Display score
-            if pygame.font:
-                font = pygame.font.Font(None, 40)
-                text1 = font.render("Score: %s" % self.score,1,(255,255,0))
-                text2 = font.render("Level: %s" % self.level,1,(255,255,0))
-                text3 = font.render("Health: %s" % self.health,1,(255,255,0))
-                textpos1 = text1.get_rect(top=10, right = self.screen.get_width()-20)
-                textpos2 = text2.get_rect(top=50, right = self.screen.get_width()-20)
-                textpos3 = text3.get_rect(top=90, right = self.screen.get_width()-20)
-                self.screen.blit(text1, textpos1)
-                self.screen.blit(text2, textpos2)
-                self.screen.blit(text3, textpos3)
+                # Display score
+                if pygame.font:
+                    font = pygame.font.Font(None, 40)
+                    text1 = font.render("Score: %s" % self.score,1,(255,255,0))
+                    text2 = font.render("Level: %s" % self.level,1,(255,255,0))
+                    text3 = font.render("Health: %s" % self.health,1,(255,255,0))
+                    textpos1 = text1.get_rect(top=10, right = self.screen.get_width()-20)
+                    textpos2 = text2.get_rect(top=50, right = self.screen.get_width()-20)
+                    textpos3 = text3.get_rect(top=90, right = self.screen.get_width()-20)
+                    self.screen.blit(text1, textpos1)
+                    self.screen.blit(text2, textpos2)
+                    self.screen.blit(text3, textpos3)
 
-            #  displays Debug
-            if self.displayDebug:
-                self.renderDebug()
+                #  displays Debug
+                if self.displayDebug:
+                    self.renderDebug()
 
     def MsgRender(self,screen,font,font_size,msg,msg_location,color):
         myfont = pygame.font.SysFont(font, font_size, True)
@@ -192,7 +188,14 @@ class GameMain():
             if event.type == pygame.QUIT:
                 pygame.display.quit()
                 sys.exit()
-
+                screen = pygame.display.set_mode(( 1280, 720))
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN and self.gamestart == False:
+                self.gamestart = True
+                if self.health <= 0:
+                    self.health = 200
+                    self.score = 0
+                    self.quota = 400
+                    self.level = 1
 
     def checkFPS(self):
         self.frameCounter+=1
@@ -285,7 +288,7 @@ class GameMain():
             bmax = len(self.button_dict)+1
             b = math.floor(random.random()*4)+1
             if b > bmax: b = bmax
-            producer = Producer(self.getType(), self, assemblerimg, x, y, button=BUTTON_DICT_M[b])            
+            producer = Producer(self.getType(), self, assemblerimg, x, y, button=BUTTON_DICT_M[b])
             self.factories.add(producer)
             return producer
         self.filledSpaces.append((x,y))
@@ -358,8 +361,9 @@ class GameMain():
                         duplicates = True
         print("rhythms: "+str(self.rhythms))
 
-
-if __name__ == '__main__':
+def main():
     sys.setrecursionlimit(5000)
     MainWindow = GameMain()
     MainWindow.MainLoop()
+if __name__ == '__main__':
+    main()
