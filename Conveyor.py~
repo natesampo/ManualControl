@@ -6,12 +6,8 @@ class Conveyor(pygame.sprite.Sprite):
         super(Conveyor, self).__init__()
         self.image = pygame.image.load('images/ConveyorBelt1.png')
         self.originalImage = self.image
-        self.straightImages = []
-        self.turnImages = []
-        for i in range(1,15):
-            self.straightImages.append(pygame.image.load('images/ConveyorBelt%s.png' % i))
-        for i in range(1,5):
-            self.turnImages.append(pygame.image.load('images/Turn%s.png' % i).convert_alpha())
+        self.straightImages = game.straightImages
+        self.turnImages = game.turnImages
         self.rect = self.image.get_rect()
         self.game = game
         self.begin_factory = begin_factory
@@ -42,7 +38,7 @@ class Conveyor(pygame.sprite.Sprite):
                 #self.game.allConveyorSprites.add(newConveyor)
 
     def update(self, scale, screen):
-        width = max(scale/200, .33)
+        width = max(scale/200, .5)
         if self.dir == 'Right' or self.dir == 'Left':
             pygame.draw.rect(screen, (76, 174, 255), (WINDOW_WIDTH/2 + self.x * scale, WINDOW_HEIGHT/2 + self.y * scale, 35 * width, 6 * width), 0)
             pygame.draw.rect(screen, (76, 174, 255), (WINDOW_WIDTH/2 + self.x * scale, 35 * scale/200 + WINDOW_HEIGHT/2 + self.y * scale, 35 * width, 6 * width), 0)
