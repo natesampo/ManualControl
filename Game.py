@@ -1,4 +1,8 @@
 import pygame
+try:
+    import android
+except ImportError:
+    android = None
 from PIL import Image
 import os, sys, math, random
 from Producer import Producer
@@ -27,20 +31,29 @@ class GameMain():
         self.screen = pygame.display.set_mode([width, height])
         self.x_view = 200
         self.y_view = self.x_view * 3/4
-
+        self.level = 1
+        self.score = 0
+        self.health = 100
+        self.quota = 0
+        self.sleeping = False  # checks if the app is sleeping
+        self.straightImages = []
+        self.turnImages = []
+        for i in range(1,15):
+            self.straightImages.append(pygame.image.load('images/ConveyorBelt%s.png' % i))
+        for i in range(1,5):
+            self.turnImages.append(pygame.image.load('images/Turn%s.png' % i).convert_alpha())
+        
     def MainLoop(self):
         self.button_dict = {}
         self.scale = 40000/self.x_view
         self.filledSpaces = [] # add coordinate tuples whenever a space if filled e.g. (x, y)
-
-        self.setRhythms(1) # 4 rhythms, each expressed as a array of 8 ones or zeros (for each 8th note beat)
+        self.setRhythms(self.level) # 4 rhythms, each expressed as a array of 8 ones or zeros (for each 8th note beat)
+        self.quota = self.score+100*sum(map(lambda r: sum(r), self.rhythms))-200
 
         # sprite groups so we can render everything all at once
         self.allConveyorSprites = pygame.sprite.Group()
         self.factories = pygame.sprite.Group()
         self.allSprites = pygame.sprite.Group(self.allConveyorSprites,self.factories)
-        self.factories.add(Producer('teddybear',self,assemblerimg,0,0))
-        self.addFactory()
 
         #Background music from the following music
         #http://audionautix.com/?utm_campaign=elearningindustry.com&utm_source=%2Fultimate-list-free-music-elearning-online-education&utm_medium=link
@@ -59,18 +72,33 @@ class GameMain():
         self.displayDebug = False
         self.beatAlternate = True
         self.gamestart = False
-        t = 0
 
-        while not self.gamestart:
+        while not self.gamestart: 
             self.screen.fill((20, 20, 20))  # setting background color
             font ="norasi"
             font_size1 = 100
-            msg1 = "Manual Control"
-            msg_location1 = (60,100)
-
             font_size2 = 30
-            msg2 = "PRESS ENTER TO ENJOY!"
-            msg_location2 = (230,300)
+            if self.health <= 0:
+                msg1 = "Game Over"
+                msg2 = "PRESS ENTER TO TRY AGAIN"
+                msg3 = "Final Score: " + str(self.score)
+                msg4 = "Final Level: " + str(self.level)
+                msg_location1 = (120,100)
+                msg_location2 = (165,300)
+                msg_location3 = (270,370)
+                msg_location4 = (270,420)
+                self.MsgRender(self.screen, font, font_size2, msg3, msg_location3,(255,255,255))
+                self.MsgRender(self.screen, font, font_size2, msg4, msg_location4,(255,255,255))
+            elif self.level == 1:
+                msg1 = "Manual Control"
+                msg2 = "PRESS ENTER TO ENJOY!"
+                msg_location1 = (40,100)
+                msg_location2 = (210,300)
+            else:
+                msg1 = "Level " + str(self.level)
+                msg2 = "PRESS ENTER TO CONTINUE!"
+                msg_location1 = (230,100)
+                msg_location2 = (170,300)
 
             self.MsgRender(self.screen, font, font_size1, msg1, msg_location1,(255,255,255))
             self.MsgRender(self.screen, font, font_size2, msg2, msg_location2,(255,255,255))
@@ -79,6 +107,14 @@ class GameMain():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
                         self.gamestart = True
+                        self.health = 100
+                        self.lastFactory = Producer('teddybear',self,assemblerimg,0,0)
+                        self.factories.add(self.lastFactory)
+                        self.lastBeatProgress = self.beatProgress+16
+                        if self.health <= 0:
+                            self.score = 0
+                            self.quota = 200
+                            self.level = 1
 
                 if event.type == pygame.QUIT:
                     pygame.display.quit()
@@ -86,10 +122,24 @@ class GameMain():
             pygame.display.flip()
 
         while self.gamestart:
-            self.scale = 40000/self.x_view
+            self.scale = 40000.0/self.x_view
             self.x_view += 0.125
             self.y_view += 3/32
             button = False
+            if self.health <= 0: # game over
+                print("died")
+                self.health = -1000
+                self.x_view = 200
+                self.y_view = self.x_view * 3/4
+                self.MainLoop()
+                return
+            if self.score >= self.quota:
+                self.level += 1
+                self.score += self.health
+                self.x_view = 200
+                self.y_view = self.x_view * 3/4
+                self.MainLoop() #TODO: This is actually terrible
+                return
 
             # frameTimeDifference attribute keeps track of the time passed between this frame and the last
             self.frameTimeDifference = clock.tick(120)  #clock.tick also is limiting the frame rate to 60fps
@@ -98,10 +148,14 @@ class GameMain():
             self.checkFPS()
             self.trackSongPos()  # smooths out accuracy of song position
 
-            t += 1/160.0/60*135
-            t = t%4
-
             pygame.display.update()  # updates the display to show everything that has been drawn/blit
+
+            # add a factory
+            if self.beatProgress-self.lastBeatProgress > 16:
+                producer = self.addFactory(self.lastFactory.x, self.lastFactory.y)
+                conveyor = Conveyor(producer, self.lastFactory, producer.x, producer.y,self)
+                self.lastFactory = producer
+                self.lastBeatProgress = self.beatProgress
 
             # draws sprites onto the screen
             self.screen.fill((20, 20, 20))  # setting background color
@@ -112,17 +166,32 @@ class GameMain():
                     self.conveyor_render(self.screen, conveyor)
             for factory in self.factories:
                 self.factory_render(self.screen, assemblerimg, assemblerpng, bearimg, factory)
-                factory.step(pygame.key.get_pressed()[factory.button], self.beatProgress%4-2)
-                if self.onScreen(factory.x, factory.y) and factory.button not in list(self.button_dict.keys()):
-                    self.button_dict[factory.button] = factory
+                if self.onScreen(factory.x, factory.y):
+                    factory.step(pygame.key.get_pressed()[factory.button], self.beatProgress%4-2)
+                    if factory.button not in list(self.button_dict.keys()):
+                        self.button_dict[factory.button] = factory
                 if factory in list(self.button_dict.values()):
                     place = list(self.button_dict.values()).index(factory)
                     self.prod_render(self.screen, factory, place)
             self.factories.draw(self.screen)
 
+            # Display score
+            if pygame.font:
+                font = pygame.font.Font(None, 40)
+                text1 = font.render("Score: %s" % self.score,1,(255,255,0))
+                text2 = font.render("Level: %s" % self.level,1,(255,255,0))
+                text3 = font.render("Health: %s" % self.health,1,(255,255,0))
+                textpos1 = text1.get_rect(top=10, right = self.screen.get_width()-20)
+                textpos2 = text2.get_rect(top=50, right = self.screen.get_width()-20)
+                textpos3 = text3.get_rect(top=90, right = self.screen.get_width()-20)
+                self.screen.blit(text1, textpos1)
+                self.screen.blit(text2, textpos2)
+                self.screen.blit(text3, textpos3)
+
             #  displays Debug
             if self.displayDebug:
                 self.renderDebug()
+
 
     def MsgRender(self,screen,font,font_size,msg,msg_location,color):
         myfont = pygame.font.SysFont(font, font_size, True)
@@ -142,7 +211,14 @@ class GameMain():
             if event.type == pygame.QUIT:
                 pygame.display.quit()
                 sys.exit()
-
+                screen = pygame.display.set_mode(( 1280, 720))
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN and self.gamestart == False:
+                self.gamestart = True
+                if self.health <= 0:
+                    self.health = 200
+                    self.score = 0
+                    self.quota = 400
+                    self.level = 1
 
     def checkFPS(self):
         self.frameCounter+=1
@@ -183,17 +259,19 @@ class GameMain():
             self.songTime = (self.songTime + myMusic.get_pos())/2
             self.lastReportedPlayheadPosition = myMusic.get_pos()
 
-    def prod_render(self, screen, factory, place):
-        progress = 50*factory.progress
-        pygame.draw.rect(screen, (255, 255, 255), (32*place + 16, 32+progress, 16, 16), 0)
-        pygame.draw.rect(screen, (255, 255, 255), (32*place, 102, 48, 4), 0)
-        if factory.built and factory.t < 10:
-            s = pygame.Surface((WINDOW_WIDTH,WINDOW_HEIGHT))
-            s.set_alpha(128)
-            s.set_colorkey((0,0,0))
 
-            pygame.draw.circle(s, (255,255,255,128), (32*place + 24, int(40+progress)), int((5+factory.t)*3), 10)
-            screen.blit(s, (0,0))
+    def prod_render(self, screen, factory, place):
+        for i, prog in enumerate(factory.progress):
+            progress = 150*prog
+            pygame.draw.rect(screen, (255, 255, 255), (32*place + 16, 32+progress, 16, 16), 0)
+            pygame.draw.rect(screen, (255, 255, 255), (32*place, 150+32+16, 48, 4), 0)
+            if factory.built[i] and factory.t < 10:
+                s = pygame.Surface((WINDOW_WIDTH,WINDOW_HEIGHT))
+                s.set_alpha(128)
+                s.set_colorkey((0,0,0))
+                pygame.draw.circle(s, (255,255,255,128), (32*place + 24, int(40+progress)), int((5+factory.t)*3), 10)
+                screen.blit(s, (0,0))
+
 
     def factory_render(self, screen, assemberimg, assemblerpng, bearimg, factory):
         # Render inputs to factory
@@ -203,36 +281,40 @@ class GameMain():
         factory.rect.topleft  = (WINDOW_WIDTH/2 + self.scale*(factory.x-.5), WINDOW_HEIGHT/2 + self.scale*(factory.y-.5))
         #screen.blit(img, (WINDOW_WIDTH/2 + self.scale*(factory.x-.5), WINDOW_HEIGHT/2 + self.scale*(factory.y-.5)))
         # Render output of factory
-        if factory.built:
+        if sum(factory.built):
             if factory.t < 20:
                 factory.t += 0.5
                 img = pygame.transform.scale(bearimg, (int(self.scale/4), int(self.scale/4)))
                 screen.blit(img, (WINDOW_WIDTH/2 + self.scale*(factory.x - .125), WINDOW_HEIGHT/2 + self.scale*(factory.y - .125 - factory.t/100.0)))
             else:
                 factory.t = 0
-                factory.built = False
+                factory.built = [0]*sum(factory.rhythm)
 
     def conveyor_render(self, screen, conveyor):
         conveyor.update(self.scale, screen)
+
 
     def addFactory(self, last_x = 0, last_y = 0):
         randx = random.random()-.5
         signx = -1 if randx<0 else 1
         randy = random.random()-.5
         signy = -1 if randy<0 else 1
-        if random.random()>.5:
-            x = round(signx*(2+(abs(randx)**2)*(WINDOW_WIDTH/self.scale*4)) + last_x)
-            y = round(signy*((abs(randy)**2)*(WINDOW_HEIGHT/self.scale*4)) + last_y)
+        if 1:#random.random()>.5:
+            x = round(randx*WINDOW_WIDTH/self.scale)
+            y = round(randy*WINDOW_HEIGHT/self.scale)
         else:
             x = round(signx*((abs(randx)**2)*(WINDOW_WIDTH/self.scale*4)) + last_x)
             y = round(signy*(2+(abs(randy)**2)*(WINDOW_HEIGHT/self.scale*4)) + last_y)
         if (x, y) in self.filledSpaces:
             return self.addFactory(last_x, last_y)
         else:
-            producer = Producer(self.getType(), self, assemblerimg,x, y, button = BUTTON_DICT_M[math.floor(random.random()*4)+1])
+            bmax = len(self.button_dict)+1
+            b = math.floor(random.random()*4)+1
+            if b > bmax: b = bmax
+            producer = Producer(self.getType(), self, assemblerimg, x, y, button=BUTTON_DICT_M[b])
             self.factories.add(producer)
+            self.filledSpaces.append((x,y))
             return producer
-        self.filledSpaces.append((x,y))
 
 
     def getType(self):
@@ -263,20 +345,20 @@ class GameMain():
                 if difficulty-i <= 1:
                     self.rhythms[i][int(r1*4)*2] = 1
                 elif difficulty-i <= 2:
-                    self.rhythms[i][int(r1*8)] = 1
-                elif difficulty-i <= 3:
+                    self.rhythms[i][int(r1*4)*2+1] = 1
+                elif difficulty-i <= 5:
                     r1 = int(r1*4)*2
                     r2 = int(r2*3)*2
                     if r2>=r1: r2 += 1
                     self.rhythms[i][r1] = 1
                     self.rhythms[i][r2] = 1
-                elif difficulty-i <= 4:
+                elif difficulty-i <= 6:
                     r1 = int(r1*8)
                     r2 = int(r2*7)
                     if r2>=r1: r2 += 1
                     self.rhythms[i][r1] = 1
                     self.rhythms[i][r2] = 1
-                elif difficulty-i <= 5:
+                elif difficulty-i <= 9:
                     r1 = int(r1*4)*2
                     r2 = int(r2*3)*2
                     r3 = int(r3*2)*2
@@ -302,8 +384,9 @@ class GameMain():
                         duplicates = True
         print("rhythms: "+str(self.rhythms))
 
-
-if __name__ == '__main__':
+def main():
     sys.setrecursionlimit(5000)
     MainWindow = GameMain()
     MainWindow.MainLoop()
+if __name__ == '__main__':
+    main()
