@@ -1,4 +1,8 @@
 import pygame
+try:
+    import android
+except ImportError:
+    android = None
 from PIL import Image
 import os, sys, math, random
 from Producer import Producer
@@ -207,6 +211,14 @@ class GameMain():
             if event.type == pygame.QUIT:
                 pygame.display.quit()
                 sys.exit()
+                screen = pygame.display.set_mode(( 1280, 720))
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN and self.gamestart == False:
+                self.gamestart = True
+                if self.health <= 0:
+                    self.health = 200
+                    self.score = 0
+                    self.quota = 400
+                    self.level = 1
 
     def checkFPS(self):
         self.frameCounter+=1
@@ -299,7 +311,7 @@ class GameMain():
             bmax = len(self.button_dict)+1
             b = math.floor(random.random()*4)+1
             if b > bmax: b = bmax
-            producer = Producer(self.getType(), self, assemblerimg, x, y, button=BUTTON_DICT_M[b])            
+            producer = Producer(self.getType(), self, assemblerimg, x, y, button=BUTTON_DICT_M[b])
             self.factories.add(producer)
             self.filledSpaces.append((x,y))
             return producer
@@ -372,8 +384,9 @@ class GameMain():
                         duplicates = True
         print("rhythms: "+str(self.rhythms))
 
-
-if __name__ == '__main__':
+def main():
     sys.setrecursionlimit(5000)
     MainWindow = GameMain()
     MainWindow.MainLoop()
+if __name__ == '__main__':
+    main()
