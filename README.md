@@ -7,7 +7,7 @@ To install Manual Control, please follow the steps below:
 2. Click 'Download ZIP'
 3. Right click on the downloaded zipped folder and click 'Extract All'
 4. Select an easily accessible location to extract the files to, and confirm the extraction
-5. Install Python 3 (https://www.python.org/downloads/release/python-361/)
+5. Install Python 3 by downloading and running the Windows Executable Installer (https://www.python.org/downloads/release/python-361/)
 6. Open the terminal by clicking on the Windows button in the bottom left corner, typing 'Command Prompt' and hitting Enter
 7. Find the location of your Python 3 install and copy the location of 'python.exe'
 8. Paste this file path into the terminal (should look something like this 'C:\Python36\python.exe')
