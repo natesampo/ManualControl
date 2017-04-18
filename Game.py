@@ -17,9 +17,12 @@ myMusic = pygame.mixer.music
 im = Image.open('images/TeddyBear.jpg')
 im.thumbnail((64, 64), Image.ANTIALIAS)
 im.save('images/ThisGuy.jpg', "JPEG")
-assemblerpng = Image.open('images/factory_cyan.png')
 
-assemblerimg = pygame.image.load('images/factory_cyan.png')
+assemblerimg = range(4)
+assemblerimg[0] = pygame.image.load('images/factory_cyan.png')
+assemblerimg[1] = pygame.image.load('images/factory_blue.png')
+assemblerimg[2] = pygame.image.load('images/factory_green.png')
+assemblerimg[3] = pygame.image.load('images/factory_gray.png')
 bearimg = pygame.image.load('images/ThisGuy.jpg')
 
 class GameMain():
@@ -108,7 +111,7 @@ class GameMain():
                     if event.key == pygame.K_RETURN:
                         self.gamestart = True
                         self.health = 100
-                        self.lastFactory = Producer('teddybear',self,assemblerimg,0,0)
+                        self.lastFactory = Producer('teddybear',self,assemblerimg[0],0,0)
                         self.factories.add(self.lastFactory)
                         self.lastBeatProgress = self.beatProgress+16
                         if self.health <= 0:
@@ -165,7 +168,7 @@ class GameMain():
                 for conveyor in factory.conveyors:
                     self.conveyor_render(self.screen, conveyor)
             for factory in self.factories:
-                self.factory_render(self.screen, assemblerimg, assemblerpng, bearimg, factory)
+                self.factory_render(self.screen, factory)
                 if self.onScreen(factory.x, factory.y):
                     factory.step(pygame.key.get_pressed()[factory.button], self.beatProgress%4-2)
                     if factory.button not in list(self.button_dict.keys()):
@@ -273,10 +276,10 @@ class GameMain():
                 screen.blit(s, (0,0))
 
 
-    def factory_render(self, screen, assemberimg, assemblerpng, bearimg, factory):
+    def factory_render(self, screen, factory):
         # Render inputs to factory
         # Render factory
-        img = pygame.transform.scale(assemblerimg, (int(self.scale), int(self.scale)))
+        img = pygame.transform.scale(assemblerimg[BUTTON_DICT_TWO[factory.button]-1], (int(self.scale), int(self.scale)))
         factory.image = img
         factory.rect.topleft  = (WINDOW_WIDTH/2 + self.scale*(factory.x-.5), WINDOW_HEIGHT/2 + self.scale*(factory.y-.5))
         #screen.blit(img, (WINDOW_WIDTH/2 + self.scale*(factory.x-.5), WINDOW_HEIGHT/2 + self.scale*(factory.y-.5)))
@@ -311,7 +314,7 @@ class GameMain():
             bmax = len(self.button_dict)+1
             b = math.floor(random.random()*4)+1
             if b > bmax: b = bmax
-            producer = Producer(self.getType(), self, assemblerimg, x, y, button=BUTTON_DICT_M[b])
+            producer = Producer(self.getType(), self, assemblerimg[int(b)-1], x, y, button=BUTTON_DICT_M[b])
             self.factories.add(producer)
             self.filledSpaces.append((x,y))
             return producer

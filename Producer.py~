@@ -36,13 +36,13 @@ class Producer(pygame.sprite.Sprite):
     def step(self, button, t):
         # t = number of beats since start of last measure (not necessarily a whole number)
 	# add new factories once on screen
-        if self.num_inputs != 0:
-            if self.game.onScreen(self.x, self.y):
+        #if self.num_inputs != 0:
+            #if self.game.onScreen(self.x, self.y):
                 #for i in range(0, self.num_inputs):
                     #producer = self.game.addFactory(self.x, self.y)
                     #conveyor = Conveyor(producer, self, producer.x, producer.y,self.game)
                     #self.game.allConveyorSprites.add(conveyor)
-                self.num_inputs = 0
+             #   self.num_inputs = 0
 
 	# check if a beat was hit
         self.progress = [0]*sum(self.rhythm)
