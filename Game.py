@@ -49,7 +49,7 @@ class GameMain():
             self.straightImages.append(pygame.image.load('images/ConveyorBelt%s.png' % i))
         for i in range(1,5):
             self.turnImages.append(pygame.image.load('images/Turn%s.png' % i).convert_alpha())
-        
+
     def MainLoop(self):
         self.button_dict = {}
         self.scale = 40000/self.x_view
@@ -80,7 +80,7 @@ class GameMain():
         self.beatAlternate = True
         self.gamestart = False
 
-        while not self.gamestart: 
+        while not self.gamestart:
             self.screen.fill((20, 20, 20))  # setting background color
             font ="norasi"
             font_size1 = 100
