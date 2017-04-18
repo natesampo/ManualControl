@@ -23,7 +23,11 @@ assemblerimg[0] = pygame.image.load('images/factory_cyan.png')
 assemblerimg[1] = pygame.image.load('images/factory_blue.png')
 assemblerimg[2] = pygame.image.load('images/factory_green.png')
 assemblerimg[3] = pygame.image.load('images/factory_gray.png')
-bearimg = pygame.image.load('images/ThisGuy.jpg')
+bearimg = range(4)
+bearimg[0] = pygame.image.load('images/Assembler_old.png')
+bearimg[1] = pygame.image.load('images/ThisGuy.jpg')
+bearimg[2] = pygame.image.load('images/ThisGuy.jpg')
+bearimg[3] = pygame.image.load('images/ThisGuy.jpg')
 
 class GameMain():
     """Main Game Class"""
@@ -34,7 +38,7 @@ class GameMain():
         self.screen = pygame.display.set_mode([width, height])
         self.x_view = 200
         self.y_view = self.x_view * 3/4
-        self.level = 1
+        self.level = 3
         self.score = 0
         self.health = 100
         self.quota = 0
@@ -167,6 +171,7 @@ class GameMain():
             for factory in self.factories.sprites():
                 for conveyor in factory.conveyors:
                     self.conveyor_render(self.screen, conveyor)
+            self.factories.draw(self.screen)
             for factory in self.factories:
                 self.factory_render(self.screen, factory)
                 if self.onScreen(factory.x, factory.y):
@@ -176,7 +181,6 @@ class GameMain():
                 if factory in list(self.button_dict.values()):
                     place = list(self.button_dict.values()).index(factory)
                     self.prod_render(self.screen, factory, place)
-            self.factories.draw(self.screen)
 
             # Display score
             if pygame.font:
@@ -287,7 +291,7 @@ class GameMain():
         if sum(factory.built):
             if factory.t < 20:
                 factory.t += 0.5
-                img = pygame.transform.scale(bearimg, (int(self.scale/4), int(self.scale/4)))
+                img = pygame.transform.scale(bearimg[BUTTON_DICT_TWO[factory.button]-1], (int(self.scale/4), int(self.scale/4)))
                 screen.blit(img, (WINDOW_WIDTH/2 + self.scale*(factory.x - .125), WINDOW_HEIGHT/2 + self.scale*(factory.y - .125 - factory.t/100.0)))
             else:
                 factory.t = 0
@@ -314,7 +318,7 @@ class GameMain():
             bmax = len(self.button_dict)+1
             b = math.floor(random.random()*4)+1
             if b > bmax: b = bmax
-            producer = Producer(self.getType(), self, assemblerimg[b-1], x, y, button=BUTTON_DICT_M[b])
+            producer = Producer(self.getType(), self, assemblerimg[int(b)-1], x, y, button=BUTTON_DICT_M[b])
             self.factories.add(producer)
             self.filledSpaces.append((x,y))
             return producer
