@@ -1,0 +1,267 @@
+ body {
+/*
+  font-family:'ITC WeberHand W01';
+  font-family:'ITC WeberHand W01 Bold';
+  font-family:'ITC WeberHand W01 Cond'; */
+  font-family:'Roboto Condensed', sans-serif;  
+  background-color: #37317f;
+  color:#FFFFFF;
+  background: #37317f url(/images/airlock-bg.jpg) no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+h1{
+  white-space: normal;
+  margin-top: 20px;
+  padding-top: 0;
+  font-size: 36px;
+  font-weight:bold;
+}
+  @media screen and (min-width: 768px){
+    .graphic-section .h1,
+    .graphic-section h1 {
+        font-size: 48px;
+        white-space: nowrap;
+    }
+  }
+  
+
+.container{
+  max-width: 80%;
+  padding-left:0;
+  padding-right:0;
+  background-color: transparent; 
+}
+.container.container-split2{
+  width:50%;
+  float:left;
+
+}
+  @media screen and (max-width: 768px){
+    .container{
+      margin-right: 20px;
+      margin-left: 20px;
+      max-width: none;
+    }
+  }
+  
+  
+.description-container{
+  font-size: 31px;
+  font-weight: 100;
+}
+  @media screen and (max-width: 959px){
+      .description-container{
+        font-size: 23px;
+        line-height: 30px;
+      }
+  }
+
+.inner-container.container-whiteborder{
+  background: transparent url(/images/kv-white-border.png) no-repeat 0 0;
+  background-size: 100% 100%;
+  margin: 0 auto;
+  padding: 30px 40px;
+  width: 80%;
+  box-sizing: content-box;
+
+}
+
+
+.inner-container{
+  text-align: center;
+  margin-right: auto;
+  margin-left: auto;
+  max-width: 90%;
+}
+  @media screen and (max-width: 959px){
+      .inner-container{
+        max-width: 100%;
+      }
+  }
+
+.jumbotron .inner-container,
+.footer .inner-container{
+  background-color: transparent;
+}
+    @media (min-width: 768px){
+      .inner-container {
+          width: 500px;
+      }
+    }
+    @media (min-width: 992px){
+      .inner-container {
+          width: 580px;
+      }
+    }
+    @media (min-width: 1200px){
+      .inner-container {
+        width: 910px;
+      }
+    }
+
+.navbar{
+  margin-bottom:0;
+  background-color: transparent; 
+}
+.navbar .navbar-header{
+  padding:0;
+  height: auto;
+  width: 100%;
+  text-align: center;
+}
+.navbar .navbar-header img{
+  width:auto;
+  max-width:100%;
+}
+
+.jumbotron,
+.graphic-section{
+  padding-top: 0px;
+  padding-bottom: 0px;
+  background-color: transparent;
+  margin-bottom: 0;
+  
+}
+
+  @media screen and (min-width: 768px){
+    .graphic-section .container{
+        padding-top: 20px;
+        padding-bottom: 20px;
+    }
+  }
+  
+.row .col-lg-6{
+  padding-left:0;
+  padding-right:0;
+}
+
+.graphic-section h3{
+  text-align: justify;
+  text-justify: inter-word;
+  font-size: 25px;
+  font-weight: 700;
+  line-height: 26px;
+  text-align:center;
+  font-family:'Roboto Condensed', sans-serif;
+  margin:10px 0 10px 0;
+}
+.graphic-section h4{
+  font-size: 30px;
+  line-height: 38px;
+  color:#fff;
+}
+
+.jumbotron p,
+.graphic-section p{
+  text-align: justify;
+  text-justify: inter-word;
+  font-size: 21px;
+  font-weight: 100;
+  line-height: 30px;
+  text-align:center;
+}
+
+
+
+.graphic-section img{
+  width:100%;
+}
+
+
+form.navbar-form{
+  position: relative;
+  border-width:0;
+  box-shadow: none;
+}
+.navbar-form .form-group{
+  width:auto !important;
+  display:block;
+  text-align:center;
+}
+.navbar-form .form-group input.form-control{
+  height: 46px;
+  background-color: #FFFFFF;
+  border: 1px solid #000;
+  border-radius: 0;
+  color: black;
+  padding-right: 0px;
+  width: 100% !important;
+  display: block;
+  margin: 25px auto 15px;
+  font-size: 21px;
+}
+    
+    .navbar-form .form-group input.form-control::-webkit-input-placeholder {
+       color: #ccc;
+    }
+    
+    .navbar-form .form-group input.form-control:-moz-placeholder { /* Firefox 18- */
+       color: #ccc;
+    }
+    
+    .navbar-form .form-group input.form-control::-moz-placeholder {  /* Firefox 19+ */
+       color: #ccc; 
+    }
+    
+    .navbar-form .form-group input.form-control:-ms-input-placeholder {  
+       color: #ccc; 
+    }
+
+.navbar-form button.btn-success{
+  background-color: #0b1122;
+  color: #FFFFFF !important; 
+  border-width:0;
+  border-radius: 5px;
+  outline:none;
+  font-size: 24px;
+  line-height: 24px;
+
+}
+.navbar-form button.btn-success:hover{
+  background-color: #2c2d6b; /* yellow */
+  color:black !important;
+}
+
+
+
+
+
+
+
+
+/* modal */
+.modal-content{
+  background-color: #003b9e; 
+}
+.modal-content p{
+  font-size:25px;
+}
+.modal-content h4{
+  font-size:35px;
+}
+.modal-header{
+
+}
+.modal-body{
+  border-top:10px solid #003b9e; 
+  background-color: #003b9e;
+}
+.modal-footer{
+  border-width:0;
+  background-color: #003b9e;
+}
+.modal-footer button{
+  background-color: #ef4035;
+  color: #fff !important;
+  border: #ef4035 2px solid;
+  border-radius: 0px;
+  outline:none;
+
+}
+.modal-footer button:hover{
+  background-color: #ffff3b; /* yellow */
+  color:black !important;
+}
