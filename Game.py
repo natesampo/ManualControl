@@ -111,7 +111,6 @@ class GameMain():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
                         self.gamestart = True
-                        self.health = 100
                         self.lastFactory = Producer('teddybear',self,assemblerimg[0],0,0)
                         self.factories.add(self.lastFactory)
                         self.lastBeatProgress = self.beatProgress+16
@@ -119,6 +118,7 @@ class GameMain():
                             self.score = 0
                             self.quota = 200
                             self.level = 1
+                        self.health = 100
 
                 if event.type == pygame.QUIT:
                     pygame.display.quit()
@@ -137,7 +137,7 @@ class GameMain():
                 self.y_view = self.x_view * 3/4
                 self.MainLoop()
                 return
-            if self.score >= self.quota:
+            if self.score >= self.quota and self.health > 0:
                 self.level += 1
                 self.score += self.health
                 self.x_view = 200
@@ -221,7 +221,7 @@ class GameMain():
                 if self.health <= 0:
                     self.health = 200
                     self.score = 0
-                    self.quota = 400
+                    self.quota = 200
                     self.level = 1
 
     def checkFPS(self):
