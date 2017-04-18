@@ -14,12 +14,12 @@ import random
 clock = pygame.time.Clock()
 myMusic = pygame.mixer.music
 
-assemblerimg = range(4)
+assemblerimg = [0,0,0,0]
 assemblerimg[0] = pygame.image.load('images/factory_cyan.png')
 assemblerimg[1] = pygame.image.load('images/factory_blue.png')
 assemblerimg[2] = pygame.image.load('images/factory_green.png')
 assemblerimg[3] = pygame.image.load('images/factory_gray.png')
-bearimg = range(4)
+bearimg = [0,0,0,0]
 bearimg[0] = pygame.image.load('images/Production1.jpg')
 bearimg[1] = pygame.image.load('images/Production2.jpg')
 bearimg[2] = pygame.image.load('images/Production3.jpg')

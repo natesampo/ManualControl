@@ -7,12 +7,6 @@
 
 <script type="text/python">
 #!/usr/bin/env python
-"""
-This simple example is used for the line-by-line tutorial
-that comes with pygame. It is based on a 'popular' web banner.
-Note there are comments here, but for the full explanation,
-follow along in the tutorial.
-"""
 
 from browser import document
 from javascript import console
@@ -90,8 +84,7 @@ class Fist(pygame.sprite.Sprite):
 
 
 class Chimp(pygame.sprite.Sprite):
-    """moves a monkey critter across the screen. it can spin the
-       monkey when it is punched."""
+    """moves a monkey critter across the screen. it can spin the monkey when it is punched."""
     def __init__(self):
         pygame.sprite.Sprite.__init__(self) #call Sprite intializer
         self.image= load_image('chimp.bmp', -1)
@@ -139,9 +132,7 @@ class Chimp(pygame.sprite.Sprite):
 
 
 def main():
-    """this function is called when the program starts.
-       it initializes everything it needs, then runs in
-       a loop until the function returns."""
+    """this function is called when the program starts. it initializes everything it needs, then runs in a loop until the function returns."""
     #Initialize Everything
     pygame.init()
     screen = pygame.display.set_mode((468, 60))
@@ -214,8 +205,8 @@ def main():
 main()
 </script>
 </head>
-<body onload="brython({debug:1})">
-  <div id="pydiv"></div>
+<body onload='brython({debug:1})'>
+  <div id='pydiv'></div>
 </body>
 
 </html>
