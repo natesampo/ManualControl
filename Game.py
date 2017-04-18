@@ -14,20 +14,16 @@ import random
 clock = pygame.time.Clock()
 myMusic = pygame.mixer.music
 
-im = Image.open('images/TeddyBear.jpg')
-im.thumbnail((64, 64), Image.ANTIALIAS)
-im.save('images/ThisGuy.jpg', "JPEG")
-
 assemblerimg = range(4)
 assemblerimg[0] = pygame.image.load('images/factory_cyan.png')
 assemblerimg[1] = pygame.image.load('images/factory_blue.png')
 assemblerimg[2] = pygame.image.load('images/factory_green.png')
 assemblerimg[3] = pygame.image.load('images/factory_gray.png')
 bearimg = range(4)
-bearimg[0] = pygame.image.load('images/ThisGuy.jpg')
-bearimg[1] = pygame.image.load('images/ThisGuy.jpg')
-bearimg[2] = pygame.image.load('images/ThisGuy.jpg')
-bearimg[3] = pygame.image.load('images/ThisGuy.jpg')
+bearimg[0] = pygame.image.load('images/Production1.jpg')
+bearimg[1] = pygame.image.load('images/Production2.jpg')
+bearimg[2] = pygame.image.load('images/Production3.jpg')
+bearimg[3] = pygame.image.load('images/Production4.jpg')
 
 class GameMain():
     """Main Game Class"""
@@ -38,7 +34,7 @@ class GameMain():
         self.screen = pygame.display.set_mode([width, height])
         self.x_view = 200
         self.y_view = self.x_view * 3/4
-        self.level = 3
+        self.level = 1
         self.score = 0
         self.health = 100
         self.quota = 0
@@ -85,27 +81,28 @@ class GameMain():
             font ="norasi"
             font_size1 = 100
             font_size2 = 30
+            k = 250
             if self.health <= 0:
                 msg1 = "Game Over"
                 msg2 = "PRESS ENTER TO TRY AGAIN"
                 msg3 = "Final Score: " + str(self.score)
                 msg4 = "Final Level: " + str(self.level)
-                msg_location1 = (120,100)
-                msg_location2 = (165,300)
-                msg_location3 = (270,370)
-                msg_location4 = (270,420)
+                msg_location1 = (120+k,100)
+                msg_location2 = (165+k,300)
+                msg_location3 = (270+k,370)
+                msg_location4 = (270+k,420)
                 self.MsgRender(self.screen, font, font_size2, msg3, msg_location3,(255,255,255))
                 self.MsgRender(self.screen, font, font_size2, msg4, msg_location4,(255,255,255))
             elif self.level == 1:
                 msg1 = "Manual Control"
                 msg2 = "PRESS ENTER TO ENJOY!"
-                msg_location1 = (40,100)
-                msg_location2 = (210,300)
+                msg_location1 = (40+k,100)
+                msg_location2 = (210+k,300)
             else:
                 msg1 = "Level " + str(self.level)
                 msg2 = "PRESS ENTER TO CONTINUE!"
-                msg_location1 = (230,100)
-                msg_location2 = (170,300)
+                msg_location1 = (230+k,100)
+                msg_location2 = (170+k,300)
 
             self.MsgRender(self.screen, font, font_size1, msg1, msg_location1,(255,255,255))
             self.MsgRender(self.screen, font, font_size2, msg2, msg_location2,(255,255,255))
