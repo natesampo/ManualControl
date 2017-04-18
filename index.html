@@ -6,411 +6,216 @@
 <script type="text/javascript" src="../../src/py_VFS.js"></script>
 
 <script type="text/python">
+#!/usr/bin/env python
+"""
+This simple example is used for the line-by-line tutorial
+that comes with pygame. It is based on a 'popular' web banner.
+Note there are comments here, but for the full explanation,
+follow along in the tutorial.
+"""
+
+from browser import document
+from javascript import console
+
+import os
+#Import Modules
 import pygame
-try:
-    import android
-except ImportError:
-    android = None
-from PIL import Image
-import os, sys, math, random
-from Producer import Producer
-from Conveyor import Conveyor
-from Game_Constants import *
-import math
-import random
+from pygame.locals import *
+from pygame.compat import geterror
 
-clock = pygame.time.Clock()
-myMusic = pygame.mixer.music
+if not pygame.font: print ('Warning, fonts disabled')
+if not pygame.mixer: print ('Warning, sound disabled')
 
-im = Image.open('images/TeddyBear.jpg')
-im.thumbnail((64, 64), Image.ANTIALIAS)
-im.save('images/ThisGuy.jpg', "JPEG")
-assemblerpng = Image.open('images/factory_cyan.png')
-
-assemblerimg = pygame.image.load('images/factory_cyan.png')
-bearimg = pygame.image.load('images/ThisGuy.jpg')
-
-class GameMain():
-    """Main Game Class"""
-    def __init__(self,width=WINDOW_WIDTH,height=WINDOW_HEIGHT):
-        pygame.init()
-        pygame.display.set_caption('Manual Control')
-        # initializes screen
-        self.screen = pygame.display.set_mode([width, height])
-        self.x_view = 200
-        self.y_view = self.x_view * 3/4
-        self.level = 1
-        self.score = 0
-        self.health = 100
-        self.quota = 0
-        self.sleeping = False  # checks if the app is sleeping
-        self.straightImages = []
-        self.turnImages = []
-        for i in range(1,15):
-            self.straightImages.append(pygame.image.load('images/ConveyorBelt%s.png' % i))
-        for i in range(1,5):
-            self.turnImages.append(pygame.image.load('images/Turn%s.png' % i).convert_alpha())
-
-    def MainLoop(self):
-        self.button_dict = {}
-        self.scale = 40000/self.x_view
-        self.filledSpaces = [] # add coordinate tuples whenever a space if filled e.g. (x, y)
-        self.setRhythms(self.level) # 4 rhythms, each expressed as a array of 8 ones or zeros (for each 8th note beat)
-        self.quota = self.score+100*sum(map(lambda r: sum(r), self.rhythms))-200
-
-        # sprite groups so we can render everything all at once
-        self.allConveyorSprites = pygame.sprite.Group()
-        self.factories = pygame.sprite.Group()
-        self.allSprites = pygame.sprite.Group(self.allConveyorSprites,self.factories)
-
-        #Background music from the following music
-        #http://audionautix.com/?utm_campaign=elearningindustry.com&utm_source=%2Fultimate-list-free-music-elearning-online-education&utm_medium=link
-        myMusic.load('BigCarTheft.ogg')
-        myMusic.play(-1)
-        self.songTime = 0  # how far along in the song the system thinks we are in ms
-        self.lastReportedPlayheadPosition = 0  # the last reported song position from the mixer
-        self.beatStep = 0
-        self.beatProgress = 0  # number of beats that have passed
-        self.beatPos = 0  # position inside our current beat
-        self.renderTeddy = False
-        self.counter= 0
-        self.frameCounter = 0
-        self.fps = 0
-        self.timePassed = 0
-        self.displayDebug = False
-        self.beatAlternate = True
-        self.gamestart = False
-
-        while not self.gamestart:
-            self.screen.fill((20, 20, 20))  # setting background color
-            font ="norasi"
-            font_size1 = 100
-            font_size2 = 30
-            if self.health <= 0:
-                msg1 = "Game Over"
-                msg2 = "PRESS ENTER TO TRY AGAIN"
-                msg3 = "Final Score: " + str(self.score)
-                msg4 = "Final Level: " + str(self.level)
-                msg_location1 = (120,100)
-                msg_location2 = (165,300)
-                msg_location3 = (270,370)
-                msg_location4 = (270,420)
-                self.MsgRender(self.screen, font, font_size2, msg3, msg_location3,(255,255,255))
-                self.MsgRender(self.screen, font, font_size2, msg4, msg_location4,(255,255,255))
-            elif self.level == 1:
-                msg1 = "Manual Control"
-                msg2 = "PRESS ENTER TO ENJOY!"
-                msg_location1 = (40,100)
-                msg_location2 = (210,300)
-            else:
-                msg1 = "Level " + str(self.level)
-                msg2 = "PRESS ENTER TO CONTINUE!"
-                msg_location1 = (230,100)
-                msg_location2 = (170,300)
-
-            self.MsgRender(self.screen, font, font_size1, msg1, msg_location1,(255,255,255))
-            self.MsgRender(self.screen, font, font_size2, msg2, msg_location2,(255,255,255))
-
-            for event in pygame.event.get():
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_RETURN:
-                        self.gamestart = True
-                        self.health = 100
-                        self.lastFactory = Producer('teddybear',self,assemblerimg,0,0)
-                        self.factories.add(self.lastFactory)
-                        self.lastBeatProgress = self.beatProgress+16
-                        if self.health <= 0:
-                            self.score = 0
-                            self.quota = 200
-                            self.level = 1
-
-                if event.type == pygame.QUIT:
-                    pygame.display.quit()
-
-            pygame.display.flip()
-
-        while self.gamestart:
-            self.scale = 40000.0/self.x_view
-            self.x_view += 0.125
-            self.y_view += 3/32
-            button = False
-            if self.health <= 0: # game over
-                print("died")
-                self.health = -1000
-                self.x_view = 200
-                self.y_view = self.x_view * 3/4
-                self.MainLoop()
-                return
-            if self.score >= self.quota:
-                self.level += 1
-                self.score += self.health
-                self.x_view = 200
-                self.y_view = self.x_view * 3/4
-                self.MainLoop() #TODO: This is actually terrible
-                return
-
-            # frameTimeDifference attribute keeps track of the time passed between this frame and the last
-            self.frameTimeDifference = clock.tick(120)  #clock.tick also is limiting the frame rate to 60fps
-
-            self.checkEvents()
-            self.checkFPS()
-            self.trackSongPos()  # smooths out accuracy of song position
-
-            pygame.display.update()  # updates the display to show everything that has been drawn/blit
-
-            # add a factory
-            if self.beatProgress-self.lastBeatProgress > 16:
-                producer = self.addFactory(self.lastFactory.x, self.lastFactory.y)
-                conveyor = Conveyor(producer, self.lastFactory, producer.x, producer.y,self)
-                self.lastFactory = producer
-                self.lastBeatProgress = self.beatProgress
-
-            # draws sprites onto the screen
-            self.screen.fill((20, 20, 20))  # setting background color
-            self.allConveyorSprites.draw(self.screen)
-
-            for factory in self.factories.sprites():
-                for conveyor in factory.conveyors:
-                    self.conveyor_render(self.screen, conveyor)
-            for factory in self.factories:
-                self.factory_render(self.screen, assemblerimg, assemblerpng, bearimg, factory)
-                if self.onScreen(factory.x, factory.y):
-                    factory.step(pygame.key.get_pressed()[factory.button], self.beatProgress%4-2)
-                    if factory.button not in list(self.button_dict.keys()):
-                        self.button_dict[factory.button] = factory
-                if factory in list(self.button_dict.values()):
-                    place = list(self.button_dict.values()).index(factory)
-                    self.prod_render(self.screen, factory, place)
-            self.factories.draw(self.screen)
-
-            # Display score
-            if pygame.font:
-                font = pygame.font.Font(None, 40)
-                text1 = font.render("Score: %s" % self.score,1,(255,255,0))
-                text2 = font.render("Level: %s" % self.level,1,(255,255,0))
-                text3 = font.render("Health: %s" % self.health,1,(255,255,0))
-                textpos1 = text1.get_rect(top=10, right = self.screen.get_width()-20)
-                textpos2 = text2.get_rect(top=50, right = self.screen.get_width()-20)
-                textpos3 = text3.get_rect(top=90, right = self.screen.get_width()-20)
-                self.screen.blit(text1, textpos1)
-                self.screen.blit(text2, textpos2)
-                self.screen.blit(text3, textpos3)
-
-            #  displays Debug
-            if self.displayDebug:
-                self.renderDebug()
+#main_dir = os.path.split(os.path.abspath(__file__))[0]
+data_dir='/gallery/pygame/resources/'
+#os.path.join(main_dir, 'data')
 
 
-    def MsgRender(self,screen,font,font_size,msg,msg_location,color):
-        myfont = pygame.font.SysFont(font, font_size, True)
-        label = myfont.render(msg, True, color)
-        screen.blit(label, msg_location)
+#functions to create our resources
+def load_image(name, colorkey=None):
+    fullname = os.path.join(data_dir, name)
+    try:
+        image = pygame.image.load(fullname)
+        print(fullname)
+    except pygame.error:
+        print ('Cannot load image:', fullname)
+        raise SystemExit(str(geterror()))
+    image = image.convert()
+    if colorkey is not None:
+        if colorkey is -1:
+            colorkey = image.get_at((0,0))
+        image.set_colorkey(colorkey, RLEACCEL)
+    return image
 
-    def checkEvents(self):
-        for event in pygame.event.get():
-            if (event.type is pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
-                if self.screen.get_flags() & pygame.FULLSCREEN:
-                    pygame.display.set_mode([WINDOW_WIDTH, WINDOW_HEIGHT])
-                else:
-                    pygame.display.set_mode([WINDOW_WIDTH, WINDOW_HEIGHT], pygame.FULLSCREEN | pygame.HWSURFACE)
-            if event.type is pygame.KEYDOWN and event.key == pygame.K_F3:
-                self.displayDebug = not self.displayDebug
-
-            if event.type == pygame.QUIT:
-                pygame.display.quit()
-                sys.exit()
-                screen = pygame.display.set_mode(( 1280, 720))
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN and self.gamestart == False:
-                self.gamestart = True
-                if self.health <= 0:
-                    self.health = 200
-                    self.score = 0
-                    self.quota = 400
-                    self.level = 1
-
-    def checkFPS(self):
-        self.frameCounter+=1
-        self.timePassed += self.frameTimeDifference
-        if self.timePassed >= 1000:
-            self.fps = int(self.frameCounter/(self.timePassed/1000))
-            self.frameCounter = 0
-            self.timePassed = 0
-
-    def renderDebug(self):
-        if pygame.font:
-            font = pygame.font.Font(None, 24)
-            text = font.render("fps: %s" % self.fps,1,(255,255,0))
-            textpos = text.get_rect(top=10, right = self.screen.get_width()-10)
-            self.screen.blit(text, textpos)
-            self.checkBeat()
-
-    def checkBeat(self):
-        if self.beatPos < .05:  # we are in the beginning of the beat
-            self.renderTeddy = True
-        if self.renderTeddy:
-            if self.counter < 10:
-                self.counter +=1
-                pygame.draw.rect(self.screen,(255,61,61),(self.screen.get_width()-50,50,30,30),0)
-            else:
-                self.counter = 0
-                self.renderTeddy = False
+def load_sound(name):
+    class NoneSound:
+        def play(self): pass
+    if not pygame.mixer or not pygame.mixer.get_init():
+        return NoneSound()
+    fullname = os.path.join(data_dir, name)
+    try:
+        sound = pygame.mixer.Sound(fullname)
+    except pygame.error:
+        print ('Cannot load sound: %s' % fullname)
+        raise SystemExit(str(geterror()))
+    return sound
 
 
-    def trackSongPos(self):
-        self.beatStep = self.frameTimeDifference*BPms
-        self.beatProgress += self.beatStep
-        self.beatPos = self.beatProgress - int(self.beatProgress)
+#classes for our game objects
+class Fist(pygame.sprite.Sprite):
+    """moves a clenched fist on the screen, following the mouse"""
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self) #call Sprite initializer
+        self.image=load_image('fist.bmp', -1)
+        self.punching = 0
 
-        self.songTime += self.frameTimeDifference
-        if(not myMusic.get_pos()==self.lastReportedPlayheadPosition):
-            # sets songTime to an average of itself and the position the mixer says the music is
-            self.songTime = (self.songTime + myMusic.get_pos())/2
-            self.lastReportedPlayheadPosition = myMusic.get_pos()
+    def update(self):
+        "move the fist based on the mouse position"
+        pos = pygame.mouse.get_pos()
+        self.rect=self.image.get_rect()
+        self.rect.midtop = pos
+        if self.punching:
+            self.rect.move_ip(5, 10)
 
+    def punch(self, target):
+        "returns true if the fist collides with the target"
+        if not self.punching:
+            self.punching = 1
+            hitbox = self.rect.inflate(-5, -5)
+            return hitbox.colliderect(target.rect)
 
-    def prod_render(self, screen, factory, place):
-        for i, prog in enumerate(factory.progress):
-            progress = 150*prog
-            pygame.draw.rect(screen, (255, 255, 255), (32*place + 16, 32+progress, 16, 16), 0)
-            pygame.draw.rect(screen, (255, 255, 255), (32*place, 150+32+16, 48, 4), 0)
-            if factory.built[i] and factory.t < 10:
-                s = pygame.Surface((WINDOW_WIDTH,WINDOW_HEIGHT))
-                s.set_alpha(128)
-                s.set_colorkey((0,0,0))
-                pygame.draw.circle(s, (255,255,255,128), (32*place + 24, int(40+progress)), int((5+factory.t)*3), 10)
-                screen.blit(s, (0,0))
-
-
-    def factory_render(self, screen, assemberimg, assemblerpng, bearimg, factory):
-        # Render inputs to factory
-        # Render factory
-        img = pygame.transform.scale(assemblerimg, (int(self.scale), int(self.scale)))
-        factory.image = img
-        factory.rect.topleft  = (WINDOW_WIDTH/2 + self.scale*(factory.x-.5), WINDOW_HEIGHT/2 + self.scale*(factory.y-.5))
-        #screen.blit(img, (WINDOW_WIDTH/2 + self.scale*(factory.x-.5), WINDOW_HEIGHT/2 + self.scale*(factory.y-.5)))
-        # Render output of factory
-        if sum(factory.built):
-            if factory.t < 20:
-                factory.t += 0.5
-                img = pygame.transform.scale(bearimg, (int(self.scale/4), int(self.scale/4)))
-                screen.blit(img, (WINDOW_WIDTH/2 + self.scale*(factory.x - .125), WINDOW_HEIGHT/2 + self.scale*(factory.y - .125 - factory.t/100.0)))
-            else:
-                factory.t = 0
-                factory.built = [0]*sum(factory.rhythm)
-
-    def conveyor_render(self, screen, conveyor):
-        conveyor.update(self.scale, screen)
+    def unpunch(self):
+        "called to pull the fist back"
+        self.punching = 0
 
 
-    def addFactory(self, last_x = 0, last_y = 0):
-        randx = random.random()-.5
-        signx = -1 if randx<0 else 1
-        randy = random.random()-.5
-        signy = -1 if randy<0 else 1
-        if 1:#random.random()>.5:
-            x = round(randx*WINDOW_WIDTH/self.scale)
-            y = round(randy*WINDOW_HEIGHT/self.scale)
+class Chimp(pygame.sprite.Sprite):
+    """moves a monkey critter across the screen. it can spin the
+       monkey when it is punched."""
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self) #call Sprite intializer
+        self.image= load_image('chimp.bmp', -1)
+        screen = pygame.display.get_surface()
+        self.area = screen.get_rect()
+        #self.rect.topleft = 10, 10
+        self.move = 9
+        self.dizzy = 0
+
+    def update(self):
+        "walk or spin, depending on the monkeys state"
+        if self.dizzy:
+            self._spin()
         else:
-            x = round(signx*((abs(randx)**2)*(WINDOW_WIDTH/self.scale*4)) + last_x)
-            y = round(signy*(2+(abs(randy)**2)*(WINDOW_HEIGHT/self.scale*4)) + last_y)
-        if (x, y) in self.filledSpaces:
-            return self.addFactory(last_x, last_y)
+            self._walk()
+
+    def _walk(self):
+        self.rect=self.image.get_rect()
+        "move the monkey across the screen, and turn at the ends"
+        newpos = self.rect.move((self.move, 0))
+        if self.rect.left < self.area.left or \
+            self.rect.right > self.area.right:
+            self.move = -self.move
+            newpos = self.rect.move((self.move, 0))
+            self.image = pygame.transform.flip(self.image, 1, 0)
+        self.rect = newpos
+
+    def _spin(self):
+        "spin the monkey image"
+        center = self.rect.center
+        self.dizzy = self.dizzy + 12
+        if self.dizzy >= 360:
+            self.dizzy = 0
+            self.image = self.original
         else:
-            bmax = len(self.button_dict)+1
-            b = math.floor(random.random()*4)+1
-            if b > bmax: b = bmax
-            producer = Producer(self.getType(), self, assemblerimg, x, y, button=BUTTON_DICT_M[b])
-            self.factories.add(producer)
-            self.filledSpaces.append((x,y))
-            return producer
+            rotate = pygame.transform.rotate
+            self.image = rotate(self.original, self.dizzy)
+        self.rect = self.image.get_rect(center=center)
 
+    def punched(self):
+        "this will cause the monkey to start spinning"
+        if not self.dizzy:
+            self.dizzy = 1
+            self.original = self.image
 
-    def getType(self):
-        if self.x_view == 200: # First factory
-            return 'teddybear'
-        i = int(random.random()*self.x_view/100)
-        if i == 0:
-            return 'teddybear' # placeholder
-        elif i == 1:
-            return 'teddybear' # placeholder
-        else:
-            return 'teddybear' # placeholder
-
-
-    def onScreen(self, x, y):
-        return abs(x)<=WINDOW_WIDTH/self.scale and abs(y)<=WINDOW_HEIGHT/self.scale
-
-
-    def setRhythms(self, difficulty):
-        self.rhythms = [0]*4
-        for i in range(0,4):
-            duplicates = True
-            while duplicates:
-                self.rhythms[i] = [0]*8
-                r1 = random.random()
-                r2 = random.random()
-                r3 = random.random()
-                if difficulty-i <= 1:
-                    self.rhythms[i][int(r1*4)*2] = 1
-                elif difficulty-i <= 2:
-                    self.rhythms[i][int(r1*4)*2+1] = 1
-                elif difficulty-i <= 5:
-                    r1 = int(r1*4)*2
-                    r2 = int(r2*3)*2
-                    if r2>=r1: r2 += 1
-                    self.rhythms[i][r1] = 1
-                    self.rhythms[i][r2] = 1
-                elif difficulty-i <= 6:
-                    r1 = int(r1*8)
-                    r2 = int(r2*7)
-                    if r2>=r1: r2 += 1
-                    self.rhythms[i][r1] = 1
-                    self.rhythms[i][r2] = 1
-                elif difficulty-i <= 9:
-                    r1 = int(r1*4)*2
-                    r2 = int(r2*3)*2
-                    r3 = int(r3*2)*2
-                    if r2>=r1: r2 += 1
-                    if r3>=r1: r3 += 1
-                    if r3>=r2: r3 += 1
-                    self.rhythms[i][r1] = 1
-                    self.rhythms[i][r2] = 1
-                    self.rhythms[i][r3] = 1
-                else:
-                    r1 = int(r1*8)
-                    r2 = int(r2*7)
-                    r3 = int(r3*6)
-                    if r2>=r1: r2 += 1
-                    if r3>=r1: r3 += 1
-                    if r3>=r2: r3 += 1
-                    self.rhythms[i][r1] = 1
-                    self.rhythms[i][r2] = 1
-                    self.rhythms[i][r3] = 1
-                duplicates = False
-                for j in range(i):
-                    if self.rhythms[i] == self.rhythms[j]:
-                        duplicates = True
-        print("rhythms: "+str(self.rhythms))
 
 def main():
-    sys.setrecursionlimit(5000)
-    MainWindow = GameMain()
-    MainWindow.MainLoop()
-if __name__ == '__main__':
-    main()
+    """this function is called when the program starts.
+       it initializes everything it needs, then runs in
+       a loop until the function returns."""
+    #Initialize Everything
+    pygame.init()
+    screen = pygame.display.set_mode((468, 60))
+    pygame.display.set_caption('Monkey Fever')
+    #pygame.mouse.set_visible(0)
+
+    #Create The Backgound
+    background = pygame.Surface(screen.get_size())
+    #document['pydiv'] <= background.canvas
+    background = background.convert()
+    background.fill((255, 0, 0))
+
+    #Put Text On The Background, Centered
+    #if pygame.font:
+    #    font = pygame.font.Font(None, 36)
+    #     text = font.render("Pummel The Chimp, And Win $$$", 1, (10, 10, 10))
+    #    textpos = text.get_rect(centerx=background.get_width()/2)
+    #    background.blit(text, textpos)
+
+    #Display The Background
+    screen.blit(background, (0, 0))
+    pygame.display.flip()
+
+    #Prepare Game Objects
+    clock = pygame.time.Clock()
+    #whiff_sound = load_sound('whiff.wav')
+    #punch_sound = load_sound('punch.wav')
+    chimp = Chimp()
+    fist = Fist()
+    allsprites = pygame.sprite.RenderPlain((fist, chimp))
+
+    #console.log(chimp.rect[2], chimp.rect[3])
+    #console.log(fist.rect[2], fist.rect[3])
+
+    #Main Loop
+    #going = True
+    #while going:
+    #    clock.tick(60)
+
+    def main_loop():
+        #Handle Input Events
+        #for event in pygame.event.get():
+        #    if event.type == QUIT:
+        #        going = False
+        #    elif event.type == KEYDOWN and event.key == K_ESCAPE:
+        #        going = False
+        #    elif event.type == MOUSEBUTTONDOWN:
+        #        if fist.punch(chimp):
+        #            punch_sound.play() #punch
+        #            chimp.punched()
+        #        else:
+        #            whiff_sound.play() #miss
+        #    elif event.type == MOUSEBUTTONUP:
+        #        fist.unpunch()
+
+        allsprites.update()
+
+        #Draw Everything
+        screen.blit(background, (0, 0))
+        allsprites.draw(screen)
+        pygame.display.flip()
+
+    from browser import timer
+    timer.set_interval(main_loop, 100)
+
+#Game Over
+
+#this calls the 'main' function when this script is executed
+#if __name__ == '__main__':
+main()
 </script>
 </head>
 <body onload="brython({debug:1})">
   <div id="pydiv"></div>
 </body>
 
-<title>Login</title>
-    <h1>Play Manual Control NEW!</h1>
-<form action='' method = 'POST'>
-  Name:<br>
-  <input type="text" name="Name"><br>
-  Age:<br>
-  <input type="text" name="Age"><br>
-  <br><input type="submit" value="Submit">
-</form>
 </html>
