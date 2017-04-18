@@ -45,7 +45,7 @@ class GameMain():
             self.straightImages.append(pygame.image.load('images/ConveyorBelt%s.png' % i))
         for i in range(1,5):
             self.turnImages.append(pygame.image.load('images/Turn%s.png' % i).convert_alpha())
-
+        self.conveyorImg = pygame.image.load('images/ConveyorBelt1.png')
     def MainLoop(self):
         self.button_dict = {}
         self.scale = 40000/self.x_view

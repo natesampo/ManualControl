@@ -4,7 +4,7 @@ import random
 class Conveyor(pygame.sprite.Sprite):
     def __init__(self, begin_factory, end_factory, x, y, game, prev_dir=None):
         super(Conveyor, self).__init__()
-        self.image = pygame.image.load('images/ConveyorBelt1.png')
+        self.image = game.conveyorImg
         self.originalImage = self.image
         self.straightImages = game.straightImages
         self.turnImages = game.turnImages
