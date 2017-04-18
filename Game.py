@@ -14,16 +14,17 @@ import random
 clock = pygame.time.Clock()
 myMusic = pygame.mixer.music
 
+imagespath = os.path.join(os.path.dirname(__file__), 'images')
 assemblerimg = [0,0,0,0]
-assemblerimg[0] = pygame.image.load('images/factory_cyan.png')
-assemblerimg[1] = pygame.image.load('images/factory_blue.png')
-assemblerimg[2] = pygame.image.load('images/factory_green.png')
-assemblerimg[3] = pygame.image.load('images/factory_gray.png')
+assemblerimg[0] = pygame.image.load(os.path.join(imagespath, "factory_cyan.png"))
+assemblerimg[1] = pygame.image.load(os.path.join(imagespath, "factory_blue.png"))
+assemblerimg[2] = pygame.image.load(os.path.join(imagespath, "factory_green.png"))
+assemblerimg[3] = pygame.image.load(os.path.join(imagespath, "factory_gray.png"))
 bearimg = [0,0,0,0]
-bearimg[0] = pygame.image.load('images/Production1.jpg')
-bearimg[1] = pygame.image.load('images/Production2.jpg')
-bearimg[2] = pygame.image.load('images/Production3.jpg')
-bearimg[3] = pygame.image.load('images/Production4.jpg')
+bearimg[0] = pygame.image.load(os.path.join(imagespath, "Production1.png"))
+bearimg[1] = pygame.image.load(os.path.join(imagespath, "Production2.png"))
+bearimg[2] = pygame.image.load(os.path.join(imagespath, "Production3.png"))
+bearimg[3] = pygame.image.load(os.path.join(imagespath, "Production4.png"))
 
 class GameMain():
     """Main Game Class"""
@@ -42,10 +43,10 @@ class GameMain():
         self.straightImages = []
         self.turnImages = []
         for i in range(1,15):
-            self.straightImages.append(pygame.image.load('images/ConveyorBelt%s.png' % i))
+            self.straightImages.append(pygame.image.load(os.path.join(imagespath, 'ConveyorBelt%s.png' % i)))
         for i in range(1,5):
-            self.turnImages.append(pygame.image.load('images/Turn%s.png' % i).convert_alpha())
-        self.conveyorImg = pygame.image.load('images/ConveyorBelt1.png')
+            self.turnImages.append(pygame.image.load(os.path.join(imagespath, 'Turn%s.png' % i)).convert_alpha())
+        self.conveyorImg = pygame.image.load(os.path.join(imagespath, 'ConveyorBelt1.png'))
     def MainLoop(self):
         self.button_dict = {}
         self.scale = 40000/self.x_view
@@ -60,7 +61,7 @@ class GameMain():
 
         #Background music from the following music
         #http://audionautix.com/?utm_campaign=elearningindustry.com&utm_source=%2Fultimate-list-free-music-elearning-online-education&utm_medium=link
-        myMusic.load('BigCarTheft.ogg')
+        myMusic.load(os.path.join(os.path.dirname(__file__), 'BigCarTheft.ogg'))
         myMusic.play(-1)
         self.songTime = 0  # how far along in the song the system thinks we are in ms
         self.lastReportedPlayheadPosition = 0  # the last reported song position from the mixer
@@ -194,7 +195,8 @@ class GameMain():
 
             #  displays Debug
             if self.displayDebug:
-                self.renderDebug()
+                #self.renderDebug()
+                pass
 
 
     def MsgRender(self,screen,font,font_size,msg,msg_location,color):
@@ -288,8 +290,8 @@ class GameMain():
         if sum(factory.built):
             if factory.t < 20:
                 factory.t += 0.5
-                img = pygame.transform.scale(bearimg[BUTTON_DICT_TWO[factory.button]-1], (int(self.scale/4), int(self.scale/4)))
-                screen.blit(img, (WINDOW_WIDTH/2 + self.scale*(factory.x - .125), WINDOW_HEIGHT/2 + self.scale*(factory.y - .125 - factory.t/100.0)))
+                img = pygame.transform.scale(bearimg[BUTTON_DICT_TWO[factory.button]-1], (int(self.scale/2), int(self.scale/2)))
+                screen.blit(img, (WINDOW_WIDTH/2 + self.scale*(factory.x - .25), WINDOW_HEIGHT/2 + self.scale*(factory.y - .45 - factory.t/100.0)))
             else:
                 factory.t = 0
                 factory.built = [0]*sum(factory.rhythm)
