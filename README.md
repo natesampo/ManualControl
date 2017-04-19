@@ -25,11 +25,16 @@ HOW TO PLAY:
 
 Your factory's AI has crashed! You must gradually take manual control over each production facility, otherwise the entire system will collapse!
 
-The boxes in the top-right corner control each factory of that type. The boxes are controlled using the 1-4 number buttons. Press the corresponding number when the box reaches the white line to score a point and produce an idea. Missing a box, or hitting the button at the wrong time causes a malfunction in your factory production and causes you to lose a health point for each factory damaged. If your health points reach 0, you lose! At the end of each level your remaining health is added to your score as a bonus and your health resets to 100.
+The boxes in the top-left corner control each factory of that type. The boxes are controlled using the 1-4 number buttons. Press the corresponding number when the box reaches the white line to score a point and produce an idea. Missing a box, or hitting the button at the wrong time causes a malfunction in your factory production and causes you to lose a health point for each factory damaged. If your health points reach 0, you lose! At the end of each level your remaining health is added to your score as a bonus and your health resets to 100.
 
 CONTROLS:
+
 Escape - Fullscreen
+
 1 - First white box
+
 2 - Second white box
+
 3 - Third white box
+
 4 - Fourth white box
