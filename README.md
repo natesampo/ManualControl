@@ -6,10 +6,10 @@ To install Manual Control, please follow the steps below:
 1. Click the green 'Clone or Download' button in the GitHub repository.
 2. Click 'Download ZIP'
 3. Right click on the downloaded zipped folder and click 'Extract All'
-4. Select an easily accessible location to extract the files to, and confirm the extraction
-5. Install Python 3 by downloading and running the Windows Executable Installer (https://www.python.org/downloads/release/python-361/)
+4. Select an easily accessible location to extract the files to, and confirm the extraction (Remember this location!)
+5. Install Python 3 by downloading and running the Windows Executable Installer (Under Files in https://www.python.org/downloads/release/python-361/). Make sure to check the box that says 'Add Path' in the Installer.
 6. Open the terminal by clicking on the Windows button in the bottom left corner, typing 'Command Prompt', right clicking on it and hitting 'Run as Administrator'
-7. Find the location of your Python 3 install and copy the location of 'python.exe'
+7. If you checked the 'Add Path' box in the installer, you can simply type 'python' and skip this step and step 8. If not, find the location of your Python 3 install and copy the location of 'python.exe'
 8. Paste this file path into the terminal (should look something like this 'C:\Python36\python.exe')
 9. Add a space and type '-m pip install Pillow' after the file path. Press Enter
 10. Repeat steps 7-9, however replace 'Pillow' with 'pygame'
