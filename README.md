@@ -1,6 +1,6 @@
 # ManualControl
 
-Welcome to Manual Control! This is a completely open source and FREE game for Windows!
+Welcome to Manual Control! This is a completely open source and FREE game for Windows and Linux!
 To install Manual Control, please follow the steps below:
 
 1. Click the green 'Clone or Download' button in the GitHub repository.
